@@ -178,4 +178,7 @@ const Map<String, String> kAr = {
   "later": "لاحقًا",
   "language": "اللغة",
   "chooseLanguage": "اختر اللغة",
+  "searchVersions": "ابحث عن ترجمة أو لغة",
+  "builtIn": "مضمّنة",
+  "noFreeVersion": "لا توجد ترجمة مجانية للتنزيل بعد. إذا كان لديك إذن باستخدام ترجمة، أضفها من رابط.",
 };

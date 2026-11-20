@@ -177,4 +177,7 @@ const Map<String, String> kZh = {
   "later": "稍后",
   "language": "语言",
   "chooseLanguage": "选择语言",
+  "searchVersions": "搜索译本或语言",
+  "builtIn": "内置",
+  "noFreeVersion": "暂无可免费下载的译本。如果你获得了某译本的使用授权，可通过链接添加。",
 };

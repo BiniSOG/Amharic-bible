@@ -177,4 +177,7 @@ const Map<String, String> kTi = {
   "later": "ደሓር",
   "language": "ቋንቋ",
   "chooseLanguage": "ቋንቋ ምረጽ",
+  "searchVersions": "ትርጉም ወይ ቋንቋ ድለ",
+  "builtIn": "ዝተኻተተ",
+  "noFreeVersion": "ክሳብ ሕጂ ብናጻ ዝወርድ ትርጉም የለን። ፍቓድ ዘለካ ትርጉም እንተሎ ብመላግቦ ወስኾ።",
 };

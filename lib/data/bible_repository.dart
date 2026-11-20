@@ -397,3 +397,20 @@ String bibleLangName(String code) => switch (code) {
   'zh' => '中文',
   _ => code,
 };
+
+/// English name of a Bible language.
+String bibleLangEnglishName(String code) => switch (code) {
+  'am' => 'Amharic',
+  'gez' => "Ge'ez",
+  'en' => 'English',
+  'om' => 'Oromo',
+  'ti' => 'Tigrinya',
+  'sgw' => 'Gurage',
+  'aa' => 'Afar',
+  'so' => 'Somali',
+  'ar' => 'Arabic',
+  'fr' => 'French',
+  'it' => 'Italian',
+  'zh' => 'Chinese',
+  _ => code,
+};

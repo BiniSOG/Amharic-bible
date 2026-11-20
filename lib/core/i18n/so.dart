@@ -177,4 +177,7 @@ const Map<String, String> kSo = {
   "later": "Mar dambe",
   "language": "Luqad",
   "chooseLanguage": "Dooro luqadda",
+  "searchVersions": "Raadi tarjumaad ama luqad",
+  "builtIn": "Ku dhex jira",
+  "noFreeVersion": "Weli ma jiro tarjumaad bilaash ah oo la soo dejin karo. Haddii aad ogolaansho u haysato, ku dar xiriiriye.",
 };

@@ -178,4 +178,7 @@ const Map<String, String> kIt = {
   "later": "Più tardi",
   "language": "Lingua",
   "chooseLanguage": "Scegli la lingua",
+  "searchVersions": "Cerca versioni o lingue",
+  "builtIn": "Integrata",
+  "noFreeVersion": "Nessuna versione libera da scaricare per ora. Se hai il permesso di usarne una, aggiungila tramite link.",
 };

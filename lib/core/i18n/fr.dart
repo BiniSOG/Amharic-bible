@@ -177,4 +177,7 @@ const Map<String, String> kFr = {
   "later": "Plus tard",
   "language": "Langue",
   "chooseLanguage": "Choisir la langue",
+  "searchVersions": "Rechercher une version ou une langue",
+  "builtIn": "Intégrée",
+  "noFreeVersion": "Aucune version libre à télécharger pour l'instant. Si vous avez l'autorisation d'en utiliser une, ajoutez-la par lien.",
 };

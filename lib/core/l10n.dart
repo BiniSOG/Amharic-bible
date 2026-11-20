@@ -301,4 +301,10 @@ const Map<String, (String, String)> _strings = {
   'later': ('Later', 'በኋላ'),
   'language': ('Language', 'ቋንቋ'),
   'chooseLanguage': ('Choose language', 'ቋንቋ ይምረጡ'),
+  'searchVersions': ('Search versions or languages', 'ትርጉም ወይም ቋንቋ ይፈልጉ'),
+  'builtIn': ('Built in', 'አብሮ የተካተተ'),
+  'noFreeVersion': (
+    'No free version is available to download yet. If you have permission to use one, add it from a link.',
+    'እስካሁን በነጻ ሊወርድ የሚችል ትርጉም የለም። ለመጠቀም ፈቃድ ያለዎት ትርጉም ካለ በሊንክ ያክሉት።',
+  ),
 };

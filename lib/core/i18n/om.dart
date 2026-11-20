@@ -178,4 +178,7 @@ const Map<String, String> kOm = {
   "later": "Booda",
   "language": "Afaan",
   "chooseLanguage": "Afaan filadhu",
+  "searchVersions": "Hiika ykn afaan barbaadi",
+  "builtIn": "Kan dabalame",
+  "noFreeVersion": "Ammaaf hiikni bilisaan buufamu hin jiru. Hayyama yoo qabaatte liinkiin dabali.",
 };
