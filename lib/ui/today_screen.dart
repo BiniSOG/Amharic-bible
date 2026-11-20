@@ -207,10 +207,35 @@ class TodayScreen extends StatelessWidget {
                       () => _push(context, const KidsScreen()),
                     ),
                     _Tool(
-                      Icons.translate,
+                      Icons.collections_bookmark_outlined,
                       l('versions'),
                       const Color(0xFF6A1B9A),
                       () => _push(context, const LibraryScreen()),
+                    ),
+                    _Tool(
+                      Icons.event_note_outlined,
+                      l('plans'),
+                      const Color(0xFF00838F),
+                      () => nav.setTab(2),
+                    ),
+                    _Tool(
+                      Icons.search_rounded,
+                      l('search'),
+                      const Color(0xFF5D4037),
+                      () async {
+                        final r = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const SearchScreen(),
+                          ),
+                        );
+                        if (r is VerseRef) nav.openInBible(r);
+                      },
+                    ),
+                    _Tool(
+                      Icons.translate_rounded,
+                      '${l('language')} · ${appLanguage(context.watch<SettingsController>().uiLang).nativeName}',
+                      const Color(0xFF0E5A47),
+                      () => showLanguagePicker(context),
                     ),
                   ],
                 ),
