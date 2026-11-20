@@ -1,0 +1,215 @@
+import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
+
+import '../core/l10n.dart';
+import '../state/settings_controller.dart';
+import 'dictionary_screen.dart';
+import 'library_screen.dart';
+import 'my_library_screen.dart';
+import 'reader/reader_sheets.dart';
+import 'search_screen.dart';
+import 'widgets/common.dart';
+
+class MoreScreen extends StatelessWidget {
+  const MoreScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L.of(context);
+    final s = context.watch<SettingsController>();
+    final cs = Theme.of(context).colorScheme;
+    void push(Widget w) =>
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => w));
+
+    Widget tile(
+      IconData icon,
+      Color color,
+      String title,
+      VoidCallback onTap, {
+      String? subtitle,
+    }) => ListTile(
+      leading: Container(
+        width: 40,
+        height: 40,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: color),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: subtitle != null ? Text(subtitle) : null,
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
+    );
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar.large(title: Text(l('more'))),
+          SliverList.list(
+            children: [
+              SectionHeader(l('tools')),
+              tile(Icons.search, cs.primary, l('search'), () async {
+                final r = await Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => const SearchScreen()));
+                if (r != null && context.mounted) {
+                  context.read<AppNav>().openInBible(r);
+                }
+              }),
+              tile(
+                Icons.local_library_outlined,
+                const Color(0xFF6D4C41),
+                l('bibleDictionary'),
+                () => push(const DictionaryScreen()),
+                subtitle: '${l('glossary')} · ${l('easton')}',
+              ),
+              tile(
+                Icons.collections_bookmark_outlined,
+                const Color(0xFFC9962B),
+                l('myLibrary'),
+                () => push(const MyLibraryScreen()),
+              ),
+              tile(
+                Icons.translate,
+                const Color(0xFF6A1B9A),
+                l('library'),
+                () => push(const LibraryScreen()),
+              ),
+              SectionHeader(l('settings')),
+              ListTile(
+                leading: const Icon(Icons.language),
+                title: Text(l('uiLanguage')),
+                trailing: SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(value: true, label: Text('አማርኛ')),
+                    ButtonSegment(value: false, label: Text('English')),
+                  ],
+                  selected: {s.uiAmharic},
+                  onSelectionChanged: (v) => s.uiAmharic = v.first,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: TextSettingsPanel(),
+              ),
+              SectionHeader(l('about')),
+              tile(
+                Icons.info_outline,
+                cs.secondary,
+                l('about'),
+                () => push(const AboutScreen()),
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AboutScreen extends StatelessWidget {
+  const AboutScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L.of(context);
+    final cs = Theme.of(context).colorScheme;
+    const credits = [
+      (
+        'መጽሐፍ ቅዱስ 1954 (Amharic)',
+        'Text via open datasets: biniama/ethiopic-bible-data (ethiopicbible.com) and magna25/amharic-bible-json (wordproject.org, MIT).',
+      ),
+      ('Ge\'ez (partial)', 'biniama/ethiopic-bible-data (ethiopicbible.com).'),
+      (
+        'English versions',
+        'Public-domain and free texts via scrollmapper/bible_databases; optional catalogue from bible.helloao.org.',
+      ),
+      ('Matthew Henry Complete Commentary', 'lyteword/mhenry-complete — CC0.'),
+      (
+        'Calvin, Scofield, Gaebelein, F. B. Meyer',
+        'thefrenchpressed/pillar-commentary-data — public-domain text, MIT conversion.',
+      ),
+      (
+        'JFB, Clarke, Gill, Keil & Delitzsch, Tyndale notes',
+        'Free Use Bible API — bible.helloao.org.',
+      ),
+      (
+        'Cross references',
+        'Treasury of Scripture Knowledge via CrossReferences.org — CC BY 4.0.',
+      ),
+      (
+        'Easton\'s Bible Dictionary (1897)',
+        'Public domain; JSON by garydavenport73 (MIT).',
+      ),
+      (
+        'Fonts',
+        'Noto Serif Ethiopic, Noto Sans Ethiopic, Noto Serif — SIL Open Font License.',
+      ),
+      ('Kids stories, glossary & plans', 'Written for this app; free to use.'),
+    ];
+    return Scaffold(
+      appBar: AppBar(title: Text(l('about'))),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Center(
+            child: Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0E5A47), Color(0xFF0A3D30)],
+                ),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Center(
+                child: Text(
+                  '✠',
+                  style: TextStyle(fontSize: 46, color: Color(0xFFC9962B)),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: Text(
+              'መጽሐፍ ቅዱስ · Amharic Bible',
+              style: Theme.of(context).textTheme.titleLarge
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Center(
+            child: Text(
+              l('wordOfGod'),
+              style: TextStyle(color: cs.onSurfaceVariant),
+            ),
+          ),
+          const SizedBox(height: 24),
+          for (final (t, d) in credits)
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                t,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              subtitle: Text(d),
+            ),
+          const SizedBox(height: 12),
+          Text(
+            l('licenseNote'),
+            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton(
+            onPressed: () => showLicensePage(context: context),
+            child: const Text('Open-source licenses'),
+          ),
+        ],
+      ),
+    );
+  }
+}

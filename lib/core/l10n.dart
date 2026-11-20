@@ -1,0 +1,210 @@
+import 'package:material_ui/material_ui.dart';
+import 'package:provider/provider.dart';
+
+import '../state/settings_controller.dart';
+
+/// Lightweight bilingual (Amharic / English) UI strings.
+class L {
+  const L(this.amharic);
+  final bool amharic;
+
+  static L of(BuildContext context) =>
+      L(context.select<SettingsController, bool>((s) => s.uiAmharic));
+
+  /// Non-listening variant for callbacks.
+  static L read(BuildContext context) =>
+      L(context.read<SettingsController>().uiAmharic);
+
+  String t(String key) {
+    final e = _strings[key];
+    if (e == null) return key;
+    return amharic ? e.$2 : e.$1;
+  }
+
+  String call(String key) => t(key);
+}
+
+const Map<String, (String, String)> _strings = {
+  'appName': ('Amharic Bible', 'መጽሐፍ ቅዱስ'),
+  'today': ('Today', 'ዛሬ'),
+  'bible': ('Bible', 'መጽሐፍ ቅዱስ'),
+  'plans': ('Plans', 'የንባብ እቅድ'),
+  'kids': ('Kids', 'ልጆች'),
+  'more': ('More', 'ተጨማሪ'),
+  'verseOfDay': ('Verse of the Day', 'የዕለቱ ጥቅስ'),
+  'continueReading': ('Continue reading', 'ንባብዎን ይቀጥሉ'),
+  'goodMorning': ('Good morning', 'እንደምን አደሩ'),
+  'goodAfternoon': ('Good afternoon', 'እንደምን ዋሉ'),
+  'goodEvening': ('Good evening', 'እንደምን አመሹ'),
+  'search': ('Search', 'ፈልግ'),
+  'searchHint': (
+    'Search words or a reference (John 3:16)',
+    'ቃል ወይም ጥቅስ ይፈልጉ (ዮሐ 3:16)',
+  ),
+  'searchIn': ('Search in', 'ፈልግ በ'),
+  'all': ('All', 'ሁሉም'),
+  'oldTestament': ('Old Testament', 'ብሉይ ኪዳን'),
+  'newTestament': ('New Testament', 'ሐዲስ ኪዳን'),
+  'results': ('results', 'ውጤቶች'),
+  'noResults': ('No results', 'ምንም አልተገኘም'),
+  'books': ('Books', 'መጻሕፍት'),
+  'chapter': ('Chapter', 'ምዕራፍ'),
+  'chapters': ('Chapters', 'ምዕራፎች'),
+  'verse': ('Verse', 'ቁጥር'),
+  'copy': ('Copy', 'ቅዳ'),
+  'copied': ('Copied to clipboard', 'ተቀድቷል'),
+  'share': ('Share', 'አጋራ'),
+  'highlight': ('Highlight', 'አድምቅ'),
+  'removeHighlight': ('Remove', 'አስወግድ'),
+  'bookmark': ('Bookmark', 'ምልክት'),
+  'bookmarked': ('Bookmarked', 'ምልክት ተደርጓል'),
+  'note': ('Note', 'ማስታወሻ'),
+  'notes': ('Notes', 'ማስታወሻዎች'),
+  'addNote': ('Add a note', 'ማስታወሻ ያክሉ'),
+  'notePlaceholder': (
+    'Write your thoughts, prayer or insight…',
+    'ሀሳብዎን፣ ጸሎትዎን ወይም ማስተዋልዎን ይጻፉ…',
+  ),
+  'save': ('Save', 'አስቀምጥ'),
+  'cancel': ('Cancel', 'ሰርዝ'),
+  'delete': ('Delete', 'አጥፋ'),
+  'commentary': ('Commentary', 'ማብራሪያ'),
+  'crossRefs': ('Cross references', 'ተዛማጅ ጥቅሶች'),
+  'compare': ('Compare', 'አወዳድር'),
+  'image': ('Verse image', 'የጥቅስ ምስል'),
+  'listen': ('Listen', 'አድምጥ'),
+  'stop': ('Stop', 'አቁም'),
+  'dictionary': ('Dictionary', 'መዝገበ ቃላት'),
+  'bibleDictionary': ('Bible Dictionary', 'የመጽሐፍ ቅዱስ መዝገበ ቃላት'),
+  'dictionaryHint': ('Look up a word…', 'ቃል ይፈልጉ…'),
+  'selected': ('selected', 'ተመርጧል'),
+  'clear': ('Clear', 'አጽዳ'),
+  'parallel': ('Parallel', 'ጎን ለጎን'),
+  'parallelOff': ('Single version', 'አንድ ትርጉም'),
+  'chooseVersion': ('Choose version', 'ትርጉም ይምረጡ'),
+  'secondVersion': ('Second version', 'ሁለተኛ ትርጉም'),
+  'versions': ('Versions', 'ትርጉሞች'),
+  'library': ('Bible versions', 'የመጽሐፍ ቅዱስ ትርጉሞች'),
+  'installed': ('On this device', 'በዚህ ስልክ ላይ'),
+  'available': ('Available to download', 'ለማውረድ ዝግጁ'),
+  'download': ('Download', 'አውርድ'),
+  'downloading': ('Downloading…', 'በማውረድ ላይ…'),
+  'remove': ('Remove', 'አስወግድ'),
+  'amharic': ('Amharic', 'አማርኛ'),
+  'english': ('English', 'እንግሊዝኛ'),
+  'geez': ('Ge\'ez', 'ግዕዝ'),
+  'addFromUrl': ('Add from link', 'ከሊንክ ያክሉ'),
+  'myLibrary': ('My notes & highlights', 'የእኔ ማስታወሻዎችና ማድመቂያዎች'),
+  'highlights': ('Highlights', 'ማድመቂያዎች'),
+  'bookmarks': ('Bookmarks', 'ምልክቶች'),
+  'history': ('History', 'ታሪክ'),
+  'nothingYet': ('Nothing here yet', 'እስካሁን ምንም የለም'),
+  'settings': ('Settings', 'ማስተካከያ'),
+  'appearance': ('Appearance', 'ገጽታ'),
+  'theme': ('Theme', 'ገጽታ'),
+  'light': ('Light', 'ብሩህ'),
+  'sepia': ('Sepia', 'ሴፒያ'),
+  'dark': ('Dark', 'ጨለማ'),
+  'system': ('System', 'እንደ ስልኩ'),
+  'fontSize': ('Text size', 'የፊደል መጠን'),
+  'lineHeight': ('Line spacing', 'የመስመር ክፍተት'),
+  'uiLanguage': ('App language', 'የመተግበሪያ ቋንቋ'),
+  'readerOptions': ('Reading', 'ንባብ'),
+  'verseNumbers': ('Show verse numbers', 'የቁጥር ምልክቶችን አሳይ'),
+  'redLetters': ('Paragraph mode', 'በአንቀጽ አሳይ'),
+  'ethiopicNumerals': ('Ethiopic numerals', 'የግዕዝ ቁጥሮች'),
+  'keepScreenOn': ('Keep screen on', 'ማያ ገጹ እንዲበራ'),
+  'about': ('About & licenses', 'ስለ መተግበሪያው'),
+  'readingPlans': ('Reading Plans', 'የንባብ እቅዶች'),
+  'myPlans': ('My plans', 'የእኔ እቅዶች'),
+  'discoverPlans': ('Discover plans', 'እቅዶችን ያግኙ'),
+  'startPlan': ('Start plan', 'እቅዱን ጀምር'),
+  'stopPlan': ('Stop plan', 'እቅዱን አቁም'),
+  'restartPlan': ('Restart', 'እንደገና ጀምር'),
+  'day': ('Day', 'ቀን'),
+  'days': ('days', 'ቀናት'),
+  'markComplete': ('Mark day complete', 'ቀኑን እንደጨረሱ ምልክት ያድርጉ'),
+  'completed': ('Completed', 'ተጠናቋል'),
+  'todaysReading': ('Today\'s reading', 'የዛሬ ንባብ'),
+  'progress': ('Progress', 'ሂደት'),
+  'behind': ('days behind', 'ቀናት ወደኋላ'),
+  'onTrack': ('On track', 'በትክክለኛው መንገድ'),
+  'read': ('Read', 'አንብብ'),
+  'kidsTitle': ('Bible Stories for Kids', 'የልጆች የመጽሐፍ ቅዱስ ታሪኮች'),
+  'kidsSubtitle': (
+    'Learn God\'s Word through stories',
+    'የእግዚአብሔርን ቃል በታሪክ ይማሩ',
+  ),
+  'story': ('Story', 'ታሪክ'),
+  'lesson': ('What we learn', 'የምንማረው'),
+  'memoryVerse': ('Memory verse', 'የሚጠና ጥቅስ'),
+  'quiz': ('Quiz time!', 'የጥያቄ ጊዜ!'),
+  'prayer': ('Let\'s pray', 'እንጸልይ'),
+  'readInBible': ('Read it in the Bible', 'በመጽሐፍ ቅዱስ አንብብ'),
+  'correct': ('Correct! Well done!', 'ትክክል! ጎበዝ!'),
+  'tryAgain': ('Try again', 'እንደገና ሞክር'),
+  'readAloud': ('Read aloud', 'ጮክ ብለህ አንብብ'),
+  'commentaryOffline': (
+    'Commentary needs an internet connection the first time. '
+        'It is saved for offline use afterwards.',
+    'ማብራሪያው ለመጀመሪያ ጊዜ ኢንተርኔት ይፈልጋል። ከዚያ በኋላ ያለ ኢንተርኔት ይሰራል።',
+  ),
+  'retry': ('Retry', 'እንደገና ሞክር'),
+  'source': ('Source', 'ምንጭ'),
+  'fullChapter': ('Full chapter commentary', 'የምዕራፉ ሙሉ ማብራሪያ'),
+  'onThisVerse': ('On this verse', 'በዚህ ቁጥር ላይ'),
+  'noCommentary': (
+    'No commentary on this passage from this source.',
+    'ከዚህ ምንጭ ለዚህ ክፍል ማብራሪያ የለም።',
+  ),
+  'noCrossRefs': (
+    'No cross references for this verse.',
+    'ለዚህ ቁጥር ተዛማጅ ጥቅስ የለም።',
+  ),
+  'myNote': ('My note', 'የእኔ ማስታወሻ'),
+  'openInReader': ('Open', 'ክፈት'),
+  'notInVersion': (
+    'This passage is not available in this version.',
+    'ይህ ክፍል በዚህ ትርጉም ውስጥ የለም።',
+  ),
+  'background': ('Background', 'ዳራ'),
+  'shareImage': ('Share image', 'ምስሉን አጋራ'),
+  'ttsUnavailable': (
+    'Text-to-speech is not available for this language on '
+        'your device.',
+    'በስልክዎ ላይ ለዚህ ቋንቋ የድምጽ ንባብ አልተገኘም።',
+  ),
+  'prevChapter': ('Previous chapter', 'ቀዳሚ ምዕራፍ'),
+  'nextChapter': ('Next chapter', 'ቀጣይ ምዕራፍ'),
+  'tools': ('Study tools', 'የጥናት መሳሪያዎች'),
+  'goTo': ('Go to', 'ሂድ'),
+  'pasteLink': ('Paste a link to a Bible JSON file', 'የJSON ፋይል ሊንክ ያስገቡ'),
+  'versionName': ('Version name', 'የትርጉሙ ስም'),
+  'add': ('Add', 'ጨምር'),
+  'licenseNote': (
+    'Only openly licensed texts are included. Copyrighted '
+        'versions (e.g. NIV, ESV, Amharic 2000 Standard) can be added from a '
+        'link once you have permission to use them.',
+    'በነጻ ፈቃድ የተሰጡ ትርጉሞች ብቻ ተካተዋል። የቅጂ መብት ያላቸው ትርጉሞችን ፈቃድ ካገኙ በኋላ በሊንክ ማከል ይችላሉ።',
+  ),
+  'stories': ('stories', 'ታሪኮች'),
+  'ageGroup': ('Ages 4–12', 'ከ4–12 ዓመት'),
+  'readyToRead': (
+    'Tap a verse to select it. Long-press for more.',
+    'ቁጥርን ለመምረጥ ይንኩ። ለተጨማሪ አማራጮች ተጭነው ይያዙ።',
+  ),
+  'streak': ('day streak', 'ተከታታይ ቀናት'),
+  'quickAccess': ('Quick access', 'ፈጣን መዳረሻ'),
+  'wordOfGod': ('Read God\'s Word daily', 'የእግዚአብሔርን ቃል በየቀኑ ያንብቡ'),
+  'select': ('Select', 'ምረጥ'),
+  'version': ('Version', 'ትርጉም'),
+  'whatIsThis': ('Meaning', 'ትርጉም'),
+  'glossary': ('Amharic glossary', 'የአማርኛ መዝገበ ቃላት'),
+  'easton': ('Easton\'s Dictionary', 'የኢስተን መዝገበ ቃላት'),
+  'relatedVerses': ('Key verses', 'ዋና ጥቅሶች'),
+  'downloadFailed': (
+    'Download failed. Check your connection.',
+    'ማውረድ አልተሳካም። ኢንተርኔትዎን ያረጋግጡ።',
+  ),
+  'fromWeb': ('Online catalogue', 'የኦንላይን ዝርዝር'),
+};
