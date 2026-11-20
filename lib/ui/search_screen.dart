@@ -96,63 +96,66 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 48,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: [
-                DropdownButton<String>(
-                  value: _version,
-                  underline: const SizedBox(),
-                  borderRadius: BorderRadius.circular(12),
-                  items: [
-                    for (final t in repo.installed)
-                      DropdownMenuItem(value: t.id, child: Text(t.abbr)),
-                  ],
-                  onChanged: (v) {
-                    setState(() => _version = v!);
-                    _run(_ctrl.text);
-                  },
-                ),
-                const SizedBox(width: 8),
-                for (final (s, label) in [
-                  (SearchScope.all, l('all')),
-                  (SearchScope.oldTestament, l('oldTestament')),
-                  (SearchScope.newTestament, l('newTestament')),
-                  (SearchScope.gospels, l.amharic ? 'ወንጌላት' : 'Gospels'),
-                ])
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: ChoiceChip(
-                      label: Text(label),
-                      selected: _scope == s,
-                      onSelected: (_) {
-                        setState(() => _scope = s);
-                        _run(_ctrl.text);
-                      },
-                    ),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            SizedBox(
+              height: 48,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  DropdownButton<String>(
+                    value: _version,
+                    underline: const SizedBox(),
+                    borderRadius: BorderRadius.circular(12),
+                    items: [
+                      for (final t in repo.installed)
+                        DropdownMenuItem(value: t.id, child: Text(t.abbr)),
+                    ],
+                    onChanged: (v) {
+                      setState(() => _version = v!);
+                      _run(_ctrl.text);
+                    },
                   ),
-              ],
-            ),
-          ),
-          if (ref != null)
-            ListTile(
-              leading: CircleAvatar(
-                backgroundColor: cs.primaryContainer,
-                child: const Icon(Icons.arrow_forward),
+                  const SizedBox(width: 8),
+                  for (final (s, label) in [
+                    (SearchScope.all, l('all')),
+                    (SearchScope.oldTestament, l('oldTestament')),
+                    (SearchScope.newTestament, l('newTestament')),
+                    (SearchScope.gospels, l.amharic ? 'ወንጌላት' : 'Gospels'),
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ChoiceChip(
+                        label: Text(label),
+                        selected: _scope == s,
+                        onSelected: (_) {
+                          setState(() => _scope = s);
+                          _run(_ctrl.text);
+                        },
+                      ),
+                    ),
+                ],
               ),
-              title: Text('${l('goTo')} ${ref.label(amharic: l.amharic)}'),
-              onTap: () => Navigator.pop(
-                context,
-                VerseRef(ref.book, ref.chapter, ref.fromVerse ?? 1),
-              ),
             ),
-          if (_busy) const LinearProgressIndicator(),
-          Expanded(child: _results(l, cs, lang)),
-        ],
+            if (ref != null)
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: cs.primaryContainer,
+                  child: const Icon(Icons.arrow_forward),
+                ),
+                title: Text('${l('goTo')} ${ref.label(amharic: l.amharic)}'),
+                onTap: () => Navigator.pop(
+                  context,
+                  VerseRef(ref.book, ref.chapter, ref.fromVerse ?? 1),
+                ),
+              ),
+            if (_busy) const LinearProgressIndicator(),
+            Expanded(child: _results(l, cs, lang)),
+          ],
+        ),
       ),
     );
   }

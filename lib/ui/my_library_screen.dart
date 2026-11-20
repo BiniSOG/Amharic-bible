@@ -72,243 +72,254 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
             ],
           ),
         ),
-        body: BibleBuilder(
-          id: s.primary,
-          builder: (context, bible) => TabBarView(
-            children: [
-              // Highlights
-              Column(
-                children: [
-                  SizedBox(
-                    height: 56,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 6),
-                          child: ChoiceChip(
-                            label: Text(l('all')),
-                            selected: _colorFilter == null,
-                            onSelected: (_) =>
-                                setState(() => _colorFilter = null),
-                          ),
-                        ),
-                        for (var i = 0; i < kHighlightColors.length; i++)
+        body: SafeArea(
+          top: false,
+          child: BibleBuilder(
+            id: s.primary,
+            builder: (context, bible) => TabBarView(
+              children: [
+                // Highlights
+                Column(
+                  children: [
+                    SizedBox(
+                      height: 56,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                        children: [
                           Padding(
                             padding: const EdgeInsets.only(right: 6),
                             child: ChoiceChip(
-                              avatar: CircleAvatar(
-                                backgroundColor: kHighlightColors[i],
-                              ),
-                              label: Text(
-                                '${user.highlights.values.where((c) => c == i).length}',
-                              ),
-                              selected: _colorFilter == i,
+                              label: Text(l('all')),
+                              selected: _colorFilter == null,
                               onSelected: (_) =>
-                                  setState(() => _colorFilter = i),
+                                  setState(() => _colorFilter = null),
                             ),
                           ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: hl.isEmpty
-                        ? EmptyState(
-                            icon: Icons.border_color_outlined,
-                            text: l('nothingYet'),
-                          )
-                        : ListView.builder(
-                            itemCount: hl.length,
-                            itemBuilder: (_, i) {
-                              final r = hl[i];
-                              return ListTile(
-                                leading: Container(
-                                  width: 8,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color:
-                                        kHighlightColors[user.highlightOf(r)!],
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
+                          for (var i = 0; i < kHighlightColors.length; i++)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: ChoiceChip(
+                                avatar: CircleAvatar(
+                                  backgroundColor: kHighlightColors[i],
                                 ),
-                                title: Text(
-                                  r.label(amharic: bible.isEthiopic),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                                label: Text(
+                                  '${user.highlights.values.where((c) => c == i).length}',
                                 ),
-                                subtitle: Text(
-                                  bible.verseOrMerged(
-                                    r.book,
-                                    r.chapter,
-                                    r.verse,
-                                  ),
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: scriptureFont(bible.lang),
-                                  ),
-                                ),
-                                onTap: () => open(r),
-                                trailing: IconButton(
-                                  icon: const Icon(Icons.close),
-                                  onPressed: () => user.setHighlight([r], null),
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              ),
-              // Bookmarks
-              bm.isEmpty
-                  ? EmptyState(
-                      icon: Icons.bookmark_border,
-                      text: l('nothingYet'),
-                    )
-                  : ListView.builder(
-                      itemCount: bm.length,
-                      itemBuilder: (_, i) {
-                        final r = VerseRef.tryParseKey(bm[i].key)!;
-                        return ListTile(
-                          leading: const Icon(Icons.bookmark, color: Brand.red),
-                          title: Text(
-                            r.label(amharic: bible.isEthiopic),
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                          subtitle: Text(
-                            bible.verseOrMerged(r.book, r.chapter, r.verse),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: scriptureFont(bible.lang),
+                                selected: _colorFilter == i,
+                                onSelected: (_) =>
+                                    setState(() => _colorFilter = i),
+                              ),
                             ),
-                          ),
-                          onTap: () => open(r),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close),
-                            onPressed: () => user.toggleBookmark([r]),
-                          ),
-                        );
-                      },
+                        ],
+                      ),
                     ),
-              // Notes
-              notes.isEmpty
-                  ? EmptyState(
-                      icon: Icons.sticky_note_2_outlined,
-                      text: l('nothingYet'),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: notes.length,
-                      itemBuilder: (_, i) {
-                        final r = VerseRef.tryParseKey(notes[i].key)!;
-                        final n = notes[i].value;
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(20),
-                            onTap: () => open(r),
-                            onLongPress: () => showNoteEditor(context, r),
-                            child: Padding(
-                              padding: const EdgeInsets.all(14),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          r.label(amharic: bible.isEthiopic),
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        visualDensity: VisualDensity.compact,
-                                        icon: const Icon(
-                                          Icons.edit_outlined,
-                                          size: 20,
-                                        ),
-                                        onPressed: () =>
-                                            showNoteEditor(context, r),
-                                      ),
-                                    ],
+                    Expanded(
+                      child: hl.isEmpty
+                          ? EmptyState(
+                              icon: Icons.border_color_outlined,
+                              text: l('nothingYet'),
+                            )
+                          : ListView.builder(
+                              itemCount: hl.length,
+                              itemBuilder: (_, i) {
+                                final r = hl[i];
+                                return ListTile(
+                                  leading: Container(
+                                    width: 8,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          kHighlightColors[user.highlightOf(
+                                            r,
+                                          )!],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
                                   ),
-                                  Text(
+                                  title: Text(
+                                    r.label(amharic: bible.isEthiopic),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  subtitle: Text(
                                     bible.verseOrMerged(
                                       r.book,
                                       r.chapter,
                                       r.verse,
                                     ),
-                                    maxLines: 2,
+                                    maxLines: 3,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      fontStyle: FontStyle.italic,
                                       fontFamily: scriptureFont(bible.lang),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    n.text,
-                                    style: const TextStyle(fontSize: 15.5),
+                                  onTap: () => open(r),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () =>
+                                        user.setHighlight([r], null),
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    MaterialLocalizations.of(context)
-                                        .formatShortDate(n.updated),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .outline,
-                                    ),
-                                  ),
-                                ],
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+                // Bookmarks
+                bm.isEmpty
+                    ? EmptyState(
+                        icon: Icons.bookmark_border,
+                        text: l('nothingYet'),
+                      )
+                    : ListView.builder(
+                        itemCount: bm.length,
+                        itemBuilder: (_, i) {
+                          final r = VerseRef.tryParseKey(bm[i].key)!;
+                          return ListTile(
+                            leading: const Icon(
+                              Icons.bookmark,
+                              color: Brand.red,
+                            ),
+                            title: Text(
+                              r.label(amharic: bible.isEthiopic),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-              // History
-              user.history.isEmpty
-                  ? EmptyState(icon: Icons.history, text: l('nothingYet'))
-                  : ListView(
-                      children: [
-                        for (final k in user.history)
-                          Builder(
-                            builder: (_) {
-                              final p = k.split('.');
-                              final r = VerseRef(
-                                int.parse(p[0]),
-                                int.parse(p[1]),
-                                1,
-                              );
-                              return ListTile(
-                                leading: const Icon(Icons.history),
-                                title: Text(
-                                  '${r.bookInfo.name(l.amharic)} ${r.chapter}',
+                            subtitle: Text(
+                              bible.verseOrMerged(r.book, r.chapter, r.verse),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: scriptureFont(bible.lang),
+                              ),
+                            ),
+                            onTap: () => open(r),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => user.toggleBookmark([r]),
+                            ),
+                          );
+                        },
+                      ),
+                // Notes
+                notes.isEmpty
+                    ? EmptyState(
+                        icon: Icons.sticky_note_2_outlined,
+                        text: l('nothingYet'),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(12),
+                        itemCount: notes.length,
+                        itemBuilder: (_, i) {
+                          final r = VerseRef.tryParseKey(notes[i].key)!;
+                          final n = notes[i].value;
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () => open(r),
+                              onLongPress: () => showNoteEditor(context, r),
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            r.label(amharic: bible.isEthiopic),
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                            ),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          visualDensity: VisualDensity.compact,
+                                          icon: const Icon(
+                                            Icons.edit_outlined,
+                                            size: 20,
+                                          ),
+                                          onPressed: () =>
+                                              showNoteEditor(context, r),
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                      bible.verseOrMerged(
+                                        r.book,
+                                        r.chapter,
+                                        r.verse,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontStyle: FontStyle.italic,
+                                        fontFamily: scriptureFont(bible.lang),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      n.text,
+                                      style: const TextStyle(fontSize: 15.5),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      MaterialLocalizations.of(context)
+                                          .formatShortDate(n.updated),
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outline,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                onTap: () => open(r),
-                              );
-                            },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                // History
+                user.history.isEmpty
+                    ? EmptyState(icon: Icons.history, text: l('nothingYet'))
+                    : ListView(
+                        children: [
+                          for (final k in user.history)
+                            Builder(
+                              builder: (_) {
+                                final p = k.split('.');
+                                final r = VerseRef(
+                                  int.parse(p[0]),
+                                  int.parse(p[1]),
+                                  1,
+                                );
+                                return ListTile(
+                                  leading: const Icon(Icons.history),
+                                  title: Text(
+                                    '${r.bookInfo.name(l.amharic)} ${r.chapter}',
+                                  ),
+                                  onTap: () => open(r),
+                                );
+                              },
+                            ),
+                          TextButton(
+                            onPressed: user.clearHistory,
+                            child: Text(l('clear')),
                           ),
-                        TextButton(
-                          onPressed: user.clearHistory,
-                          child: Text(l('clear')),
-                        ),
-                      ],
-                    ),
-            ],
+                        ],
+                      ),
+              ],
+            ),
           ),
         ),
       ),
@@ -325,11 +336,11 @@ class _MyLibraryScreenState extends State<MyLibraryScreen> {
       ..sort((a, b) => a.key.compareTo(b.key));
     for (final e in notes) {
       final r = VerseRef.tryParseKey(e.key)!;
-      b.writeln('📝 ${r.label(amharic: l.amharic)}\n${e.value.text}\n');
+      b.writeln('${r.label(amharic: l.amharic)}\n${e.value.text}\n');
     }
     if (user.highlights.isNotEmpty) {
       b.writeln(
-        '🖍 ${l('highlights')}: ${(user.highlights.keys.map(VerseRef.tryParseKey).whereType<VerseRef>().toList()..sort()).map((r) => r.label(amharic: l.amharic, short: true)).join(', ')}',
+        '${l('highlights')}: ${(user.highlights.keys.map(VerseRef.tryParseKey).whereType<VerseRef>().toList()..sort()).map((r) => r.label(amharic: l.amharic, short: true)).join(', ')}',
       );
     }
     await SharePlus.instance.share(ShareParams(text: b.toString()));

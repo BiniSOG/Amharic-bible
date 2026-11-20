@@ -80,7 +80,7 @@ class _PlanCard extends StatelessWidget {
                 ),
               ),
               alignment: Alignment.center,
-              child: Text(plan.emoji, style: const TextStyle(fontSize: 40)),
+              child: Icon(plan.icon, size: 44, color: Colors.white),
             ),
             Expanded(
               child: Padding(
@@ -101,7 +101,8 @@ class _PlanCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         plan.desc(l.amharic),
-                        overflow: TextOverflow.fade,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -153,7 +154,15 @@ class _ActivePlanCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(plan.emoji, style: const TextStyle(fontSize: 28)),
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: c.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(plan.icon, color: c),
+                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -198,7 +207,10 @@ class _ActivePlanCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 FilledButton.icon(
-                  style: FilledButton.styleFrom(backgroundColor: c),
+                  style: FilledButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: c,
+                  ),
                   icon: const Icon(Icons.play_arrow_rounded),
                   label: Text('${l('day')} ${next + 1} · ${l('read')}'),
                   onPressed: () => Navigator.of(context).push(

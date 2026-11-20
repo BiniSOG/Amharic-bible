@@ -71,9 +71,9 @@ class _KidsScreenState extends State<KidsScreen> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFFFF8A65),
-                          Color(0xFFBA68C8),
-                          Color(0xFF4FC3F7),
+                          Color(0xFF0E5A47),
+                          Color(0xFF1B8A6B),
+                          Color(0xFF2E9E7E),
                         ],
                       ),
                     ),
@@ -95,20 +95,30 @@ class _KidsScreenState extends State<KidsScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 6),
-                                  Text(
-                                    '⭐ ${user.storiesDoneCount}/${all.length}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 18,
-                                    ),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.star_rounded,
+                                        color: Color(0xFFFFD54F),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${user.storiesDoneCount}/${all.length}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
-                            const Text(
-                              '🐑🌈🦁',
-                              style: TextStyle(fontSize: 38),
+                            Icon(
+                              Icons.auto_stories_rounded,
+                              size: 56,
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ],
                         ),
@@ -137,7 +147,12 @@ class _KidsScreenState extends State<KidsScreen> {
                   child: Center(child: CircularProgressIndicator()),
                 ),
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                padding: EdgeInsets.fromLTRB(
+                  16,
+                  8,
+                  16,
+                  32 + MediaQuery.paddingOf(context).bottom,
+                ),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 220,
@@ -202,10 +217,7 @@ class _StoryCard extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Hero(
                       tag: 'story-${story.id}',
-                      child: Text(
-                        story.emoji,
-                        style: const TextStyle(fontSize: 54),
-                      ),
+                      child: Icon(story.icon, size: 56, color: Colors.white),
                     ),
                   ),
                 ),
@@ -262,7 +274,11 @@ class _StoryCard extends StatelessWidget {
               const Positioned(
                 right: 10,
                 top: 8,
-                child: Text('⭐', style: TextStyle(fontSize: 22)),
+                child: Icon(
+                  Icons.star_rounded,
+                  size: 26,
+                  color: Color(0xFFFFD54F),
+                ),
               ),
           ],
         ),

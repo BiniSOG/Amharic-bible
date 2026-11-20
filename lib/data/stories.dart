@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:material_ui/material_ui.dart';
 
 import '../core/reference.dart';
 
@@ -16,7 +17,6 @@ class QuizQuestion {
 class KidsStory {
   KidsStory({
     required this.id,
-    required this.emoji,
     required this.color,
     required this.isNewTestament,
     required this.titleEn,
@@ -33,7 +33,6 @@ class KidsStory {
   });
 
   final String id;
-  final String emoji;
   final int color;
   final bool isNewTestament;
   final String titleEn, titleAm;
@@ -44,6 +43,9 @@ class KidsStory {
   final List<QuizQuestion> quiz;
   final String prayerEn, prayerAm;
 
+  /// Illustration icon for the story card.
+  IconData get icon => _storyIcons[id] ?? Icons.auto_stories_rounded;
+
   String title(bool a) => a ? titleAm : titleEn;
   List<String> paragraphs(bool a) => a ? am : en;
   String lesson(bool a) => a ? lessonAm : lessonEn;
@@ -51,7 +53,6 @@ class KidsStory {
 
   factory KidsStory.fromJson(Map<String, dynamic> j) => KidsStory(
     id: j['id'] as String,
-    emoji: j['emoji'] as String,
     color: int.parse(j['color'] as String),
     isNewTestament: j['section'] == 'nt',
     titleEn: j['title_en'] as String,
@@ -90,3 +91,32 @@ class StoriesRepository {
     return _stories!;
   }
 }
+
+const Map<String, IconData> _storyIcons = {
+  'creation': Icons.public_rounded,
+  'eden': Icons.park_rounded,
+  'noah': Icons.sailing_rounded,
+  'abraham': Icons.auto_awesome_rounded,
+  'joseph': Icons.checkroom_rounded,
+  'moses-baby': Icons.shopping_basket_rounded,
+  'red-sea': Icons.waves_rounded,
+  'ten-commandments': Icons.gavel_rounded,
+  'jericho': Icons.campaign_rounded,
+  'samuel': Icons.hearing_rounded,
+  'david-goliath': Icons.shield_rounded,
+  'daniel': Icons.pets_rounded,
+  'jonah': Icons.phishing_rounded,
+  'esther': Icons.diamond_rounded,
+  'jesus-born': Icons.star_rounded,
+  'boy-jesus': Icons.account_balance_rounded,
+  'fishermen': Icons.set_meal_rounded,
+  'storm': Icons.thunderstorm_rounded,
+  'loaves': Icons.bakery_dining_rounded,
+  'good-samaritan': Icons.healing_rounded,
+  'lost-son': Icons.home_rounded,
+  'zacchaeus': Icons.forest_rounded,
+  'children': Icons.family_restroom_rounded,
+  'easter': Icons.wb_twilight_rounded,
+  'pentecost': Icons.local_fire_department_rounded,
+  'ethiopian': Icons.water_drop_rounded,
+};

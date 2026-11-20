@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/l10n.dart';
 import '../state/settings_controller.dart';
 import 'dictionary_screen.dart';
+import 'kids/kids_screen.dart';
 import 'library_screen.dart';
 import 'my_library_screen.dart';
 import 'reader/reader_sheets.dart';
@@ -50,6 +51,20 @@ class MoreScreen extends StatelessWidget {
           SliverList.list(
             children: [
               SectionHeader(l('tools')),
+              tile(
+                Icons.child_care_outlined,
+                const Color(0xFFD81B60),
+                l('kidsTitle'),
+                () => push(const KidsScreen()),
+                subtitle: l('kidsSubtitle'),
+              ),
+              tile(
+                Icons.quiz_outlined,
+                const Color(0xFF1565C0),
+                l('bibleQuiz'),
+                () => context.read<AppNav>().setTab(3),
+                subtitle: l('quizSubtitle'),
+              ),
               tile(Icons.search, cs.primary, l('search'), () async {
                 final r = await Navigator.of(
                   context,
@@ -148,67 +163,65 @@ class AboutScreen extends StatelessWidget {
         'Fonts',
         'Noto Serif Ethiopic, Noto Sans Ethiopic, Noto Serif — SIL Open Font License.',
       ),
-      ('Kids stories, glossary & plans', 'Written for this app; free to use.'),
+      (
+        'Kids stories, Bible quiz, glossary & plans',
+        'Written for this app; free to use.',
+      ),
     ];
     return Scaffold(
       appBar: AppBar(title: Text(l('about'))),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Center(
-            child: Container(
-              width: 88,
-              height: 88,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0E5A47), Color(0xFF0A3D30)],
-                ),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Center(
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-              ),
-              child: const Center(
-                child: Text(
-                  '✠',
-                  style: TextStyle(fontSize: 46, color: Color(0xFFC9962B)),
+                child: Image.asset(
+                  'assets/images/app_logo.png',
+                  width: 96,
+                  height: 96,
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Center(
-            child: Text(
-              'መጽሐፍ ቅዱስ · Amharic Bible',
-              style: Theme.of(context).textTheme.titleLarge
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Center(
-            child: Text(
-              l('wordOfGod'),
-              style: TextStyle(color: cs.onSurfaceVariant),
-            ),
-          ),
-          const SizedBox(height: 24),
-          for (final (t, d) in credits)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                t,
-                style: const TextStyle(fontWeight: FontWeight.w700),
+            const SizedBox(height: 12),
+            Center(
+              child: Text(
+                'መጽሐፍ ቅዱስ · Amharic Bible',
+                style: Theme.of(context).textTheme.titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w800),
               ),
-              subtitle: Text(d),
             ),
-          const SizedBox(height: 12),
-          Text(
-            l('licenseNote'),
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
-          ),
-          const SizedBox(height: 12),
-          OutlinedButton(
-            onPressed: () => showLicensePage(context: context),
-            child: const Text('Open-source licenses'),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Center(
+              child: Text(
+                l('wordOfGod'),
+                style: TextStyle(color: cs.onSurfaceVariant),
+              ),
+            ),
+            const SizedBox(height: 24),
+            for (final (t, d) in credits)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  t,
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+                subtitle: Text(d),
+              ),
+            const SizedBox(height: 12),
+            Text(
+              l('licenseNote'),
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: () => showLicensePage(context: context),
+              child: const Text('Open-source licenses'),
+            ),
+          ],
+        ),
       ),
     );
   }

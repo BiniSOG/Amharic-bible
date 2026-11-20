@@ -102,30 +102,33 @@ class _BookPickerScreenState extends State<BookPickerScreen>
           ),
         ),
       ),
-      body: match != null
-          ? _BookList(
-              books: match,
-              am: am,
-              grid: _grid,
-              current: widget.currentBook,
-            )
-          : TabBarView(
-              controller: _tabs,
-              children: [
-                _BookList(
-                  books: kBooks.where((b) => b.index < 40).toList(),
-                  am: am,
-                  grid: _grid,
-                  current: widget.currentBook,
-                ),
-                _BookList(
-                  books: kBooks.where((b) => b.index >= 40).toList(),
-                  am: am,
-                  grid: _grid,
-                  current: widget.currentBook,
-                ),
-              ],
-            ),
+      body: SafeArea(
+        top: false,
+        child: match != null
+            ? _BookList(
+                books: match,
+                am: am,
+                grid: _grid,
+                current: widget.currentBook,
+              )
+            : TabBarView(
+                controller: _tabs,
+                children: [
+                  _BookList(
+                    books: kBooks.where((b) => b.index < 40).toList(),
+                    am: am,
+                    grid: _grid,
+                    current: widget.currentBook,
+                  ),
+                  _BookList(
+                    books: kBooks.where((b) => b.index >= 40).toList(),
+                    am: am,
+                    grid: _grid,
+                    current: widget.currentBook,
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
@@ -248,38 +251,61 @@ class ChapterPickerScreen extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     final color = categoryColor(book.category);
     return Scaffold(
-      appBar: AppBar(title: Text(book.name(l.amharic))),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 72,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-        ),
-        itemCount: book.chapters,
-        itemBuilder: (_, i) => Material(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(14),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: () => Navigator.pop(context, VerseRef(book.index, i + 1, 1)),
-            onLongPress: () async {
-              final v = await Navigator.of(context).push<int>(
-                MaterialPageRoute(
-                  builder: (_) => VersePickerScreen(book: book, chapter: i + 1),
+      appBar: AppBar(
+        title: Text(book.name(l.amharic)),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(28),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Row(
+              children: [
+                Icon(Icons.touch_app_outlined, size: 16, color: cs.outline),
+                const SizedBox(width: 6),
+                Text(
+                  l('chooseVerse'),
+                  style: TextStyle(fontSize: 12.5, color: cs.onSurfaceVariant),
                 ),
-              );
-              if (v != null && context.mounted) {
-                Navigator.pop(context, VerseRef(book.index, i + 1, v));
-              }
-            },
-            child: Center(
-              child: Text(
-                s.number(i + 1),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: cs.onSurface,
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: SafeArea(
+        top: false,
+        child: GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 72,
+            mainAxisSpacing: 10,
+            crossAxisSpacing: 10,
+          ),
+          itemCount: book.chapters,
+          itemBuilder: (_, i) => Material(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () =>
+                  Navigator.pop(context, VerseRef(book.index, i + 1, 1)),
+              onLongPress: () async {
+                final v = await Navigator.of(context).push<int>(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        VersePickerScreen(book: book, chapter: i + 1),
+                  ),
+                );
+                if (v != null && context.mounted) {
+                  Navigator.pop(context, VerseRef(book.index, i + 1, v));
+                }
+              },
+              child: Center(
+                child: Text(
+                  s.number(i + 1),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: cs.onSurface,
+                  ),
                 ),
               ),
             ),
@@ -310,23 +336,26 @@ class VersePickerScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('${book.name(l.amharic)} $chapter · ${l('verse')}'),
       ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 64,
-          mainAxisSpacing: 8,
-          crossAxisSpacing: 8,
-        ),
-        itemCount: n,
-        itemBuilder: (_, i) => OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            padding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+      body: SafeArea(
+        top: false,
+        child: GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 64,
+            mainAxisSpacing: 8,
+            crossAxisSpacing: 8,
           ),
-          onPressed: () => Navigator.pop(context, i + 1),
-          child: Text(s.number(i + 1)),
+          itemCount: n,
+          itemBuilder: (_, i) => OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            onPressed: () => Navigator.pop(context, i + 1),
+            child: Text(s.number(i + 1)),
+          ),
         ),
       ),
     );

@@ -43,6 +43,24 @@ void main() {
     expect(s.length, greaterThanOrEqualTo(20));
   });
 
+  test('every quiz question points at a real verse', () {
+    final am = _load('assets/bibles/am1954.json', 'AM1954', 'am');
+    final kjv = _load('assets/bibles/kjv.json', 'KJV', 'en');
+    final quiz =
+        jsonDecode(File('assets/data/quiz.json').readAsStringSync()) as List;
+    expect(quiz.length, greaterThanOrEqualTo(120));
+    for (final q in quiz) {
+      final p = (q[5] as String).split('.').map(int.parse).toList();
+      expect(kjv.verse(p[0], p[1], p[2]), isNotEmpty, reason: q[1] as String);
+      expect(
+        am.verseOrMerged(p[0], p[1], p[2]),
+        isNotEmpty,
+        reason: q[1] as String,
+      );
+      expect((q[3] as List).toSet().length, 4, reason: q[1] as String);
+    }
+  });
+
   test('HelloAO-shaped complete.json parses', () {
     final body = jsonEncode({
       'translation': {'id': 'x'},

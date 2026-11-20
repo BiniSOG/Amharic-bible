@@ -72,139 +72,142 @@ class _VerseImageScreenState extends State<VerseImageScreen> {
     final fg = light ? Brand.sepiaText : Colors.white;
     return Scaffold(
       appBar: AppBar(title: Text(l('image'))),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          RepaintBoundary(
-            key: _key,
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: colors,
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                padding: const EdgeInsets.all(28),
-                child: Column(
-                  crossAxisAlignment: _align == TextAlign.center
-                      ? CrossAxisAlignment.center
-                      : CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.format_quote_rounded,
-                      color: fg.withValues(alpha: 0.5),
-                      size: 36,
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            RepaintBoundary(
+              key: _key,
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: colors,
                     ),
-                    Expanded(
-                      child: Center(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxWidth: 320),
-                            child: Text(
-                              widget.text,
-                              textAlign: _align,
-                              style: TextStyle(
-                                fontFamily: scriptureFont(widget.lang),
-                                fontSize: _size,
-                                height: 1.45,
-                                color: fg,
-                                fontWeight: FontWeight.w500,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: const EdgeInsets.all(28),
+                  child: Column(
+                    crossAxisAlignment: _align == TextAlign.center
+                        ? CrossAxisAlignment.center
+                        : CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.format_quote_rounded,
+                        color: fg.withValues(alpha: 0.5),
+                        size: 36,
+                      ),
+                      Expanded(
+                        child: Center(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 320),
+                              child: Text(
+                                widget.text,
+                                textAlign: _align,
+                                style: TextStyle(
+                                  fontFamily: scriptureFont(widget.lang),
+                                  fontSize: _size,
+                                  height: 1.45,
+                                  color: fg,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      widget.reference,
-                      style: TextStyle(
-                        color: fg.withValues(alpha: 0.85),
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.4,
+                      const SizedBox(height: 12),
+                      Text(
+                        widget.reference,
+                        style: TextStyle(
+                          color: fg.withValues(alpha: 0.85),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              l('background'),
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 52,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _backgrounds.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                itemBuilder: (_, i) => GestureDetector(
+                  onTap: () => setState(() => _bg = i),
+                  child: Container(
+                    width: 52,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(colors: _backgrounds[i]),
+                      border: Border.all(
+                        width: i == _bg ? 3 : 1,
+                        color: i == _bg
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.black12,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            l('background'),
-            style: const TextStyle(fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 52,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: _backgrounds.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 10),
-              itemBuilder: (_, i) => GestureDetector(
-                onTap: () => setState(() => _bg = i),
-                child: Container(
-                  width: 52,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(colors: _backgrounds[i]),
-                    border: Border.all(
-                      width: i == _bg ? 3 : 1,
-                      color: i == _bg
-                          ? Theme.of(context).colorScheme.primary
-                          : Colors.black12,
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                const Icon(Icons.text_fields),
+                Expanded(
+                  child: Slider(
+                    value: _size,
+                    min: 14,
+                    max: 34,
+                    onChanged: (v) => setState(() => _size = v),
+                  ),
+                ),
+                SegmentedButton<TextAlign>(
+                  segments: const [
+                    ButtonSegment(
+                      value: TextAlign.start,
+                      icon: Icon(Icons.format_align_left),
                     ),
-                  ),
+                    ButtonSegment(
+                      value: TextAlign.center,
+                      icon: Icon(Icons.format_align_center),
+                    ),
+                  ],
+                  selected: {_align},
+                  onSelectionChanged: (s) => setState(() => _align = s.first),
                 ),
-              ),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Icon(Icons.text_fields),
-              Expanded(
-                child: Slider(
-                  value: _size,
-                  min: 14,
-                  max: 34,
-                  onChanged: (v) => setState(() => _size = v),
-                ),
-              ),
-              SegmentedButton<TextAlign>(
-                segments: const [
-                  ButtonSegment(
-                    value: TextAlign.start,
-                    icon: Icon(Icons.format_align_left),
-                  ),
-                  ButtonSegment(
-                    value: TextAlign.center,
-                    icon: Icon(Icons.format_align_center),
-                  ),
-                ],
-                selected: {_align},
-                onSelectionChanged: (s) => setState(() => _align = s.first),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: _busy ? null : _share,
-            icon: _busy
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.ios_share_rounded),
-            label: Text(l('shareImage')),
-          ),
-        ],
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: _busy ? null : _share,
+              icon: _busy
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.ios_share_rounded),
+              label: Text(l('shareImage')),
+            ),
+          ],
+        ),
       ),
     );
   }

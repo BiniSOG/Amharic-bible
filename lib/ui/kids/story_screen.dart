@@ -113,7 +113,7 @@ class _StoryScreenState extends State<StoryScreen> {
               children: [
                 for (var i = 0; i < paras.length; i++)
                   _StoryPage(
-                    emoji: story.emoji,
+                    icon: story.icon,
                     heroTag: i == 0 ? 'story-${story.id}' : null,
                     color: c,
                     text: paras[i],
@@ -142,6 +142,7 @@ class _StoryScreenState extends State<StoryScreen> {
                   if (_page < total - 1)
                     FilledButton.icon(
                       style: FilledButton.styleFrom(
+                        foregroundColor: Colors.white,
                         backgroundColor: c,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 28,
@@ -163,6 +164,7 @@ class _StoryScreenState extends State<StoryScreen> {
                   else
                     FilledButton.icon(
                       style: FilledButton.styleFrom(
+                        foregroundColor: Colors.white,
                         backgroundColor: c,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 22,
@@ -196,12 +198,12 @@ class _StoryScreenState extends State<StoryScreen> {
 
 class _StoryPage extends StatelessWidget {
   const _StoryPage({
-    required this.emoji,
+    required this.icon,
     required this.color,
     required this.text,
     this.heroTag,
   });
-  final String emoji;
+  final IconData icon;
   final Color color;
   final String text;
   final String? heroTag;
@@ -209,7 +211,7 @@ class _StoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<SettingsController>();
-    final emojiWidget = Text(emoji, style: const TextStyle(fontSize: 96));
+    final illustration = Icon(icon, size: 104, color: color);
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
       children: [
@@ -226,8 +228,8 @@ class _StoryPage extends StatelessWidget {
           ),
           alignment: Alignment.center,
           child: heroTag != null
-              ? Hero(tag: heroTag!, child: emojiWidget)
-              : emojiWidget,
+              ? Hero(tag: heroTag!, child: illustration)
+              : illustration,
         ),
         const SizedBox(height: 28),
         Text(
@@ -258,7 +260,7 @@ class _LessonPage extends StatelessWidget {
       children: [
         _Bubble(
           color: c,
-          icon: '💡',
+          icon: Icons.lightbulb_outline_rounded,
           title: l('lesson'),
           child: Text(
             story.lesson(l.amharic),
@@ -272,7 +274,7 @@ class _LessonPage extends StatelessWidget {
         const SizedBox(height: 18),
         _Bubble(
           color: Brand.gold,
-          icon: '📖',
+          icon: Icons.menu_book_rounded,
           title: l('memoryVerse'),
           child: BibleBuilder(
             id: l.amharic ? 'AM1954' : 'KJV',
@@ -325,7 +327,7 @@ class _QuizPageState extends State<_QuizPage> {
       padding: const EdgeInsets.all(24),
       children: [
         Text(
-          '🧩 ${l('quiz')}',
+          l('quiz'),
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 12),
@@ -374,9 +376,13 @@ class _QuizPageState extends State<_QuizPage> {
                               ),
                             ),
                             if (isPicked)
-                              Text(
-                                correct ? '✅' : '❌',
-                                style: const TextStyle(fontSize: 20),
+                              Icon(
+                                correct
+                                    ? Icons.check_circle_rounded
+                                    : Icons.cancel_rounded,
+                                color: correct
+                                    ? Colors.green.shade700
+                                    : Colors.red.shade700,
                               ),
                           ],
                         ),
@@ -391,8 +397,8 @@ class _QuizPageState extends State<_QuizPage> {
               padding: const EdgeInsets.only(bottom: 16),
               child: Text(
                 _answers[qi] == widget.story.quiz[qi].answer
-                    ? '🎉 ${l('correct')}'
-                    : '🤔 ${l('tryAgain')}',
+                    ? l('correct')
+                    : l('tryAgain'),
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
@@ -404,7 +410,7 @@ class _QuizPageState extends State<_QuizPage> {
         ],
         _Bubble(
           color: const Color(0xFF7E57C2),
-          icon: '🙏',
+          icon: Icons.volunteer_activism_rounded,
           title: l('prayer'),
           child: Text(
             widget.story.prayer(am),
@@ -428,7 +434,7 @@ class _Bubble extends StatelessWidget {
     required this.child,
   });
   final Color color;
-  final String icon;
+  final IconData icon;
   final String title;
   final Widget child;
 
@@ -443,13 +449,21 @@ class _Bubble extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '$icon  $title',
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 18,
-            color: color,
-          ),
+        Row(
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 18,
+                  color: color,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 10),
         child,

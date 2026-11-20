@@ -561,6 +561,32 @@ class _ChapterViewState extends State<ChapterView> {
     } else if (s.paragraphMode && sec == null) {
       items.add(_paragraph(context, verses, baseSize, s, user, cs));
     } else {
+      if (sec != null && s.sideBySide) {
+        Widget head(String t) => Expanded(
+          child: Text(
+            t,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w800,
+              fontSize: 12.5,
+              letterSpacing: 0.4,
+              color: cs.secondary,
+            ),
+          ),
+        );
+        items.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(22, 4, 22, 8),
+            child: Row(
+              children: [
+                head(p.abbr),
+                Container(width: 1, height: 16, color: cs.outlineVariant),
+                head(sec.abbr),
+              ],
+            ),
+          ),
+        );
+      }
       for (var v = 1; v <= count; v++) {
         final t = v <= verses.length ? verses[v - 1] : '';
         final t2 = v <= secVerses.length ? secVerses[v - 1] : '';
@@ -580,6 +606,7 @@ class _ChapterViewState extends State<ChapterView> {
             label: end > v ? '${s.number(v)}-${s.number(end)}' : s.number(v),
             text: t,
             secondaryText: sec == null ? null : t2,
+            sideBySide: s.sideBySide,
             lang: p.lang,
             secondaryLang: sec?.lang,
             fontSize: baseSize,
@@ -711,6 +738,7 @@ class _VerseTile extends StatelessWidget {
     required this.label,
     required this.text,
     required this.secondaryText,
+    this.sideBySide = false,
     required this.lang,
     required this.secondaryLang,
     required this.fontSize,
@@ -728,6 +756,7 @@ class _VerseTile extends StatelessWidget {
   final String label;
   final String text;
   final String? secondaryText;
+  final bool sideBySide;
   final String lang;
   final String? secondaryLang;
   final double fontSize;
@@ -827,6 +856,34 @@ class _VerseTile extends StatelessWidget {
           ),
           child: secondaryText == null
               ? main
+              : sideBySide
+              ? IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: _scaled(main, 0.92)),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: VerticalDivider(
+                          width: 1,
+                          thickness: 1,
+                          color: cs.outlineVariant,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          secondaryText!.isEmpty ? '—' : secondaryText!,
+                          style: TextStyle(
+                            fontFamily: scriptureFont(secondaryLang ?? 'en'),
+                            fontSize: fontSize * 0.85,
+                            height: lineHeight * 0.95,
+                            color: cs.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -860,3 +917,15 @@ class _VerseTile extends StatelessWidget {
     );
   }
 }
+
+/// Shrinks the primary text a little when shown in a narrow column.
+Widget _scaled(Widget child, double factor) => Builder(
+  builder: (context) => MediaQuery(
+    data: MediaQuery.of(context).copyWith(
+      textScaler: TextScaler.linear(
+        MediaQuery.textScalerOf(context).scale(1) * factor,
+      ),
+    ),
+    child: child,
+  ),
+);

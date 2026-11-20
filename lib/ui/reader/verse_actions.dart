@@ -201,30 +201,40 @@ class SelectionBar extends StatelessWidget {
                       ),
                       HighlightRow(onPick: a.highlight),
                       const SizedBox(height: 6),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            _Chip(Icons.copy_rounded, l('copy'), a.copy),
-                            _Chip(Icons.ios_share_rounded, l('share'), a.share),
-                            _Chip(
-                              Icons.menu_book_rounded,
-                              l('commentary'),
-                              () => a.study(StudyTab.commentary),
-                            ),
-                            _Chip(
-                              Icons.sticky_note_2_outlined,
-                              l('note'),
-                              a.note,
-                            ),
-                            _Chip(
-                              Icons.bookmark_add_outlined,
-                              l('bookmark'),
-                              a.bookmark,
-                            ),
-                            _Chip(Icons.more_horiz, l('more'), onMore),
-                          ],
-                        ),
+                      _ActionStrip(
+                        actions: [
+                          (Icons.copy_rounded, l('copy'), a.copy),
+                          (Icons.ios_share_rounded, l('share'), a.share),
+                          (
+                            Icons.menu_book_rounded,
+                            l('commentary'),
+                            () => a.study(StudyTab.commentary),
+                          ),
+                          (
+                            Icons.link_rounded,
+                            l('crossRefs'),
+                            () => a.study(StudyTab.crossRefs),
+                          ),
+                          (
+                            Icons.compare_arrows_rounded,
+                            l('compare'),
+                            () => a.study(StudyTab.compare),
+                          ),
+                          (Icons.edit_note_rounded, l('note'), a.note),
+                          (
+                            Icons.bookmark_add_outlined,
+                            l('bookmark'),
+                            a.bookmark,
+                          ),
+                          (Icons.image_outlined, l('image'), a.image),
+                          (Icons.headphones_outlined, l('listen'), a.listen),
+                          (
+                            Icons.translate_rounded,
+                            l('dictionary'),
+                            () => a.study(StudyTab.words),
+                          ),
+                          (Icons.more_horiz_rounded, l('more'), onMore),
+                        ],
                       ),
                     ],
                   ),
@@ -235,21 +245,110 @@ class SelectionBar extends StatelessWidget {
   }
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip(this.icon, this.label, this.onTap);
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
+/// Horizontally scrollable row of verse actions. A fade and arrow on the
+/// right edge show there is more to scroll to.
+class _ActionStrip extends StatefulWidget {
+  const _ActionStrip({required this.actions});
+  final List<(IconData, String, VoidCallback)> actions;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(right: 6),
-    child: ActionChip(
-      avatar: Icon(icon, size: 18),
-      label: Text(label),
-      onPressed: onTap,
-    ),
-  );
+  State<_ActionStrip> createState() => _ActionStripState();
+}
+
+class _ActionStripState extends State<_ActionStrip> {
+  final _ctrl = ScrollController();
+  bool _atEnd = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl.addListener(() {
+      final end = _ctrl.position.pixels >= _ctrl.position.maxScrollExtent - 4;
+      if (end != _atEnd) setState(() => _atEnd = end);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final list = ListView.separated(
+      controller: _ctrl,
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(right: 28),
+      itemCount: widget.actions.length,
+      separatorBuilder: (_, _) => const SizedBox(width: 4),
+      itemBuilder: (_, i) {
+        final (icon, label, onTap) = widget.actions[i];
+        return InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: SizedBox(
+            width: 68,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: cs.secondaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, size: 21, color: cs.onSecondaryContainer),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 11),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    return SizedBox(
+      height: 66,
+      child: Stack(
+        children: [
+          ShaderMask(
+            shaderCallback: (r) => LinearGradient(
+              colors: [
+                Colors.black,
+                Colors.black,
+                _atEnd ? Colors.black : Colors.transparent,
+              ],
+              stops: const [0, 0.85, 1],
+            ).createShader(r),
+            blendMode: BlendMode.dstIn,
+            child: list,
+          ),
+          if (!_atEnd)
+            Positioned(
+              right: 0,
+              top: 0,
+              bottom: 18,
+              child: IgnorePointer(
+                child: Icon(
+                  Icons.chevron_right_rounded,
+                  color: cs.onSurfaceVariant,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class HighlightRow extends StatelessWidget {
@@ -419,7 +518,12 @@ Future<void> showVerseActionsSheet(
       ];
 
       return Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          0,
+          20,
+          20 + MediaQuery.paddingOf(sheetCtx).bottom,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,

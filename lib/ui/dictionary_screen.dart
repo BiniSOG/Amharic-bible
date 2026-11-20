@@ -94,49 +94,52 @@ class _DictionaryScreenState extends State<DictionaryScreen> {
           ),
         ),
       ),
-      body: FutureBuilder<List<DictionaryEntry>>(
-        future: _future,
-        builder: (context, snap) {
-          if (!snap.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final list = snap.data!;
-          if (list.isEmpty) {
-            return EmptyState(icon: Icons.search_off, text: l('noResults'));
-          }
-          return ListView.builder(
-            itemCount: list.length,
-            itemBuilder: (_, i) {
-              final e = list[i];
-              final first = e.definition.split('\n').first;
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: e.source == DictionarySource.glossary
-                      ? cs.secondaryContainer
-                      : cs.primaryContainer,
-                  child: Text(
-                    e.term.characters.first.toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.w800),
+      body: SafeArea(
+        top: false,
+        child: FutureBuilder<List<DictionaryEntry>>(
+          future: _future,
+          builder: (context, snap) {
+            if (!snap.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final list = snap.data!;
+            if (list.isEmpty) {
+              return EmptyState(icon: Icons.search_off, text: l('noResults'));
+            }
+            return ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (_, i) {
+                final e = list[i];
+                final first = e.definition.split('\n').first;
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: e.source == DictionarySource.glossary
+                        ? cs.secondaryContainer
+                        : cs.primaryContainer,
+                    child: Text(
+                      e.term.characters.first.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
                   ),
-                ),
-                title: Text(
-                  e.termAlt != null ? '${e.term} · ${e.termAlt}' : e.term,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-                subtitle: Text(
-                  first,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => DictionaryEntryScreen(entry: e),
+                  title: Text(
+                    e.termAlt != null ? '${e.term} · ${e.termAlt}' : e.term,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
-                ),
-              );
-            },
-          );
-        },
+                  subtitle: Text(
+                    first,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => DictionaryEntryScreen(entry: e),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -155,67 +158,70 @@ class DictionaryEntryScreen extends StatelessWidget {
     );
     return Scaffold(
       appBar: AppBar(title: Text(entry.term)),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Text(
-            entry.term,
-            style: Theme.of(context).textTheme.headlineMedium
-                ?.copyWith(fontWeight: FontWeight.w800, color: cs.primary),
-          ),
-          if (entry.termAlt != null)
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
             Text(
-              entry.termAlt!,
-              style: Theme.of(context).textTheme.titleMedium
-                  ?.copyWith(color: cs.secondary),
+              entry.term,
+              style: Theme.of(context).textTheme.headlineMedium
+                  ?.copyWith(fontWeight: FontWeight.w800, color: cs.primary),
             ),
-          const SizedBox(height: 4),
-          Text(
-            entry.source == DictionarySource.easton
-                ? 'Easton\'s Bible Dictionary (1897)'
-                : l('glossary'),
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-          ),
-          const SizedBox(height: 16),
-          SelectableText(
-            entry.definition,
-            style: const TextStyle(fontSize: 16.5, height: 1.6),
-          ),
-          const SizedBox(height: 20),
-          if (entry.refs.isNotEmpty || refRe.hasMatch(entry.definition)) ...[
+            if (entry.termAlt != null)
+              Text(
+                entry.termAlt!,
+                style: Theme.of(context).textTheme.titleMedium
+                    ?.copyWith(color: cs.secondary),
+              ),
+            const SizedBox(height: 4),
             Text(
-              l('relatedVerses'),
-              style: const TextStyle(fontWeight: FontWeight.w800),
+              entry.source == DictionarySource.easton
+                  ? 'Easton\'s Bible Dictionary (1897)'
+                  : l('glossary'),
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
             ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: [
-                for (final k in entry.refs)
-                  if (VerseRef.tryParseKey(k) case final r?)
-                    ActionChip(
-                      avatar: const Icon(Icons.menu_book, size: 16),
-                      label: Text(r.label(amharic: l.amharic, short: true)),
-                      onPressed: () => _open(context, r),
-                    ),
-                for (final m in refRe.allMatches(entry.definition).take(16))
-                  if (parseHumanReference(
-                        '${m.group(1)} ${m.group(2)}:${m.group(3)}',
-                      )
-                      case final p?)
-                    ActionChip(
-                      avatar: const Icon(Icons.menu_book, size: 16),
-                      label: Text(p.label(amharic: l.amharic)),
-                      onPressed: () => _open(
-                        context,
-                        VerseRef(p.book, p.chapter, p.fromVerse ?? 1),
+            const SizedBox(height: 16),
+            SelectableText(
+              entry.definition,
+              style: const TextStyle(fontSize: 16.5, height: 1.6),
+            ),
+            const SizedBox(height: 20),
+            if (entry.refs.isNotEmpty || refRe.hasMatch(entry.definition)) ...[
+              Text(
+                l('relatedVerses'),
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final k in entry.refs)
+                    if (VerseRef.tryParseKey(k) case final r?)
+                      ActionChip(
+                        avatar: const Icon(Icons.menu_book, size: 16),
+                        label: Text(r.label(amharic: l.amharic, short: true)),
+                        onPressed: () => _open(context, r),
                       ),
-                    ),
-              ],
-            ),
+                  for (final m in refRe.allMatches(entry.definition).take(16))
+                    if (parseHumanReference(
+                          '${m.group(1)} ${m.group(2)}:${m.group(3)}',
+                        )
+                        case final p?)
+                      ActionChip(
+                        avatar: const Icon(Icons.menu_book, size: 16),
+                        label: Text(p.label(amharic: l.amharic)),
+                        onPressed: () => _open(
+                          context,
+                          VerseRef(p.book, p.chapter, p.fromVerse ?? 1),
+                        ),
+                      ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

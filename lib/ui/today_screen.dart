@@ -13,6 +13,7 @@ import '../data/plans.dart';
 import '../state/settings_controller.dart';
 import '../state/user_data_controller.dart';
 import 'dictionary_screen.dart';
+import 'kids/kids_screen.dart';
 import 'library_screen.dart';
 import 'my_library_screen.dart';
 import 'plans/plan_detail_screen.dart';
@@ -122,7 +123,10 @@ class TodayScreen extends StatelessWidget {
                   child: Tooltip(
                     message: l('streak'),
                     child: Chip(
-                      avatar: const Text('🔥'),
+                      avatar: const Icon(
+                        Icons.local_fire_department_rounded,
+                        color: Color(0xFFE65100),
+                      ),
                       label: Text('${user.streak}'),
                     ),
                   ),
@@ -186,16 +190,16 @@ class TodayScreen extends StatelessWidget {
                           _push(context, const MyLibraryScreen(initialTab: 2)),
                     ),
                     _Tool(
-                      Icons.event_note_outlined,
-                      l('plans'),
+                      Icons.quiz_outlined,
+                      l('bibleQuiz'),
                       const Color(0xFF1565C0),
-                      () => nav.setTab(2),
+                      () => nav.setTab(3),
                     ),
                     _Tool(
-                      Icons.child_care,
+                      Icons.child_care_outlined,
                       l('kids'),
-                      const Color(0xFFE91E63),
-                      () => nav.setTab(3),
+                      const Color(0xFFD81B60),
+                      () => _push(context, const KidsScreen()),
                     ),
                     _Tool(
                       Icons.translate,
@@ -440,7 +444,7 @@ class _PlanTodayTile extends StatelessWidget {
                 strokeWidth: 4,
                 color: Color(plan.color),
               ),
-              Text(plan.emoji, style: const TextStyle(fontSize: 20)),
+              Icon(plan.icon, size: 20, color: Color(plan.color)),
             ],
           ),
         ),

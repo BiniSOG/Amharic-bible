@@ -49,7 +49,12 @@ Future<void> showVersionPicker(BuildContext context, {bool parallel = false}) {
         maxChildSize: 0.95,
         builder: (_, sc) => ListView(
           controller: sc,
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+          padding: EdgeInsets.fromLTRB(
+            12,
+            0,
+            12,
+            24 + MediaQuery.paddingOf(ctx).bottom,
+          ),
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
@@ -59,6 +64,11 @@ Future<void> showVersionPicker(BuildContext context, {bool parallel = false}) {
                     ?.copyWith(fontWeight: FontWeight.w800),
               ),
             ),
+            if (parallel)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+                child: ParallelLayoutSelector(),
+              ),
             if (parallel)
               _VersionTile(
                 selected: current == null,
@@ -144,6 +154,35 @@ class _VersionTile extends StatelessWidget {
   }
 }
 
+/// Choose how a second version is shown: line by line or in two columns.
+class ParallelLayoutSelector extends StatelessWidget {
+  const ParallelLayoutSelector({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = context.watch<SettingsController>();
+    final l = L.of(context);
+    return SegmentedButton<bool>(
+      showSelectedIcon: false,
+      expandedInsets: EdgeInsets.zero,
+      segments: [
+        ButtonSegment(
+          value: false,
+          icon: const Icon(Icons.view_agenda_outlined),
+          label: Text(l('layoutStacked')),
+        ),
+        ButtonSegment(
+          value: true,
+          icon: const Icon(Icons.view_column_outlined),
+          label: Text(l('layoutColumns')),
+        ),
+      ],
+      selected: {s.sideBySide},
+      onSelectionChanged: (v) => s.sideBySide = v.first,
+    );
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Text settings
 // ---------------------------------------------------------------------------
@@ -153,9 +192,14 @@ Future<void> showTextSettings(BuildContext context) {
     context: context,
     useSafeArea: true,
     isScrollControlled: true,
-    builder: (ctx) => const Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, 20, 24),
-      child: TextSettingsPanel(),
+    builder: (ctx) => Padding(
+      padding: EdgeInsets.fromLTRB(
+        20,
+        0,
+        20,
+        24 + MediaQuery.paddingOf(ctx).bottom,
+      ),
+      child: const SingleChildScrollView(child: TextSettingsPanel()),
     ),
   );
 }
@@ -270,6 +314,13 @@ class TextSettingsPanel extends StatelessWidget {
           divisions: 12,
           onChanged: (v) => s.lineHeight = v,
         ),
+        Text(
+          l('parallelLayout'),
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        const SizedBox(height: 8),
+        const ParallelLayoutSelector(),
+        const SizedBox(height: 8),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(l('verseNumbers')),
@@ -444,7 +495,12 @@ class _StudySheetState extends State<StudySheet>
           ),
         ),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
+          padding: EdgeInsets.fromLTRB(
+            20,
+            12,
+            20,
+            40 + MediaQuery.paddingOf(context).bottom,
+          ),
           sliver: SliverToBoxAdapter(child: body),
         ),
       ],

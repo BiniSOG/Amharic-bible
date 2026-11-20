@@ -61,7 +61,11 @@ class PlanDetailScreen extends StatelessWidget {
                   ),
                 ),
                 alignment: Alignment.center,
-                child: Text(plan.emoji, style: const TextStyle(fontSize: 64)),
+                child: Icon(
+                  plan.icon,
+                  size: 72,
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
               ),
             ),
           ),
@@ -84,6 +88,7 @@ class PlanDetailScreen extends StatelessWidget {
                   if (prog == null)
                     FilledButton.icon(
                       style: FilledButton.styleFrom(
+                        foregroundColor: Colors.white,
                         backgroundColor: c,
                         minimumSize: const Size.fromHeight(50),
                       ),
@@ -152,7 +157,9 @@ class PlanDetailScreen extends StatelessWidget {
               );
             },
           ),
-          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          SliverToBoxAdapter(
+            child: SizedBox(height: 40 + MediaQuery.paddingOf(context).bottom),
+          ),
         ],
       ),
     );
@@ -180,76 +187,82 @@ class PlanDayScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('${plan.title(l.amharic)} · ${l('day')} ${day + 1}'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          for (final p in passages)
-            Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                leading: Icon(Icons.menu_book_rounded, color: c),
-                title: Text(
-                  p.label(amharic: l.amharic),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 17,
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            for (final p in passages)
+              Card(
+                margin: const EdgeInsets.only(bottom: 10),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
                   ),
-                ),
-                subtitle: Text('${p.chapters.length} ${l('chapters')}'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => ReaderScreen(
-                      standalone: true,
-                      initial: VerseRef(p.book, p.chapter, p.fromVerse ?? 1),
-                      footerBuilder: (ctx, b, ch) {
-                        final last = p.chapters.last;
-                        if (b != p.book || ch != last || prog == null) {
-                          return const SizedBox.shrink();
-                        }
-                        return _CompleteButton(plan: plan, day: day);
-                      },
+                  leading: Icon(Icons.menu_book_rounded, color: c),
+                  title: Text(
+                    p.label(amharic: l.amharic),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 17,
+                    ),
+                  ),
+                  subtitle: Text('${p.chapters.length} ${l('chapters')}'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ReaderScreen(
+                        standalone: true,
+                        initial: VerseRef(p.book, p.chapter, p.fromVerse ?? 1),
+                        footerBuilder: (ctx, b, ch) {
+                          final last = p.chapters.last;
+                          if (b != p.book || ch != last || prog == null) {
+                            return const SizedBox.shrink();
+                          }
+                          return _CompleteButton(plan: plan, day: day);
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          const SizedBox(height: 12),
-          if (prog == null)
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: c),
-              onPressed: () => user.startPlan(plan.id),
-              child: Text(l('startPlan')),
-            )
-          else
-            _CompleteButton(plan: plan, day: day),
-          if (done)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Center(
-                child: Text(
-                  '🎉 ${l('completed')}',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: cs.primary,
-                    fontWeight: FontWeight.w800,
+            const SizedBox(height: 12),
+            if (prog == null)
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: c,
+                ),
+                onPressed: () => user.startPlan(plan.id),
+                child: Text(l('startPlan')),
+              )
+            else
+              _CompleteButton(plan: plan, day: day),
+            if (done)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Center(
+                  child: Text(
+                    l('completed'),
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: cs.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
               ),
+            const SizedBox(height: 8),
+            Text(
+              s.uiAmharic
+                  ? 'ምክር፦ በምዕራፉ መጨረሻ «ቀኑን እንደጨረሱ ምልክት ያድርጉ» ይጫኑ።'
+                  : 'Tip: tap “Mark day complete” at the end of the reading.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
             ),
-          const SizedBox(height: 8),
-          Text(
-            s.uiAmharic
-                ? 'ምክር፦ በምዕራፉ መጨረሻ «ቀኑን እንደጨረሱ ምልክት ያድርጉ» ይጫኑ።'
-                : 'Tip: tap “Mark day complete” at the end of the reading.',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -269,6 +282,7 @@ class _CompleteButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: FilledButton.icon(
         style: FilledButton.styleFrom(
+          foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(52),
           backgroundColor: done ? Brand.gold : Color(plan.color),
         ),
@@ -277,7 +291,7 @@ class _CompleteButton extends StatelessWidget {
         onPressed: () {
           user.setDayDone(plan.id, day, !done);
           if (!done) {
-            showSnack(context, '🎉 ${l('completed')} — ${l('day')} ${day + 1}');
+            showSnack(context, '${l('completed')} — ${l('day')} ${day + 1}');
           }
         },
       ),

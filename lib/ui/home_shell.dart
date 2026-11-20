@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import '../core/l10n.dart';
-import 'kids/kids_screen.dart';
+import 'quiz/quiz_screen.dart';
 import 'more_screen.dart';
 import 'plans/plans_screen.dart';
 import 'reader/reader_screen.dart';
@@ -40,7 +40,7 @@ class _ShellState extends State<_Shell> {
       const TodayScreen(),
       const ReaderScreen(),
       const PlansScreen(),
-      const KidsScreen(),
+      const QuizHomeScreen(),
       const MoreScreen(),
     ];
     return Scaffold(
@@ -71,9 +71,9 @@ class _ShellState extends State<_Shell> {
             label: l('plans'),
           ),
           NavigationDestination(
-            icon: const Icon(Icons.child_care_outlined),
-            selectedIcon: const Icon(Icons.child_care),
-            label: l('kids'),
+            icon: const Icon(Icons.quiz_outlined),
+            selectedIcon: const Icon(Icons.quiz),
+            label: l('quiz2'),
           ),
           NavigationDestination(
             icon: const Icon(Icons.apps_outlined),

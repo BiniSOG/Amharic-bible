@@ -231,4 +231,19 @@ class UserDataController extends ChangeNotifier {
   }
 
   int get storiesDoneCount => _storiesDone.length;
+
+  // ---------- Bible quiz ----------
+  /// Best percentage per level name ('easy', 'medium', 'hard', 'mixed').
+  int bestScore(String level) => _p.getInt('quizBest_$level') ?? -1;
+  int get quizAnswered => _p.getInt('quizAnswered') ?? 0;
+  int get quizCorrect => _p.getInt('quizCorrect') ?? 0;
+
+  void recordQuiz(String level, int correct, int total) {
+    if (total == 0) return;
+    final pct = (correct * 100 / total).round();
+    if (pct > bestScore(level)) _p.setInt('quizBest_$level', pct);
+    _p.setInt('quizAnswered', quizAnswered + total);
+    _p.setInt('quizCorrect', quizCorrect + correct);
+    notifyListeners();
+  }
 }

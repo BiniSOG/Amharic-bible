@@ -20,6 +20,7 @@ class SettingsController extends ChangeNotifier {
     _paragraphMode = _p.getBool('paragraphMode') ?? false;
     _ethiopicNumerals = _p.getBool('ethiopicNumerals') ?? false;
     _commentarySource = _p.getString('commentarySource') ?? 'mhc';
+    _sideBySide = _p.getBool('sideBySide') ?? false;
     final last = _p.getString('lastRef');
     _last =
         (last != null ? VerseRef.tryParseKey(last) : null) ??
@@ -38,6 +39,7 @@ class SettingsController extends ChangeNotifier {
   late bool _paragraphMode;
   late bool _ethiopicNumerals;
   late String _commentarySource;
+  late bool _sideBySide;
   late VerseRef _last;
 
   ReaderTheme get theme => _theme;
@@ -50,6 +52,15 @@ class SettingsController extends ChangeNotifier {
   bool get paragraphMode => _paragraphMode;
   bool get ethiopicNumerals => _ethiopicNumerals;
   String get commentarySource => _commentarySource;
+
+  /// Parallel layout: false = stacked (line by line), true = two columns.
+  bool get sideBySide => _sideBySide;
+  set sideBySide(bool v) {
+    _sideBySide = v;
+    _p.setBool('sideBySide', v);
+    notifyListeners();
+  }
+
   VerseRef get lastRef => _last;
 
   ThemeMode get themeMode => switch (_theme) {

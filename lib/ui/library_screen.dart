@@ -41,108 +41,111 @@ class _LibraryScreenState extends State<LibraryScreen> {
         label: Text(l('addFromUrl')),
         onPressed: () => _addCustom(context),
       ),
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 100),
-        children: [
-          SizedBox(
-            height: 52,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              children: [
-                for (final (k, label) in [
-                  ('all', l('all')),
-                  ('am', l('amharic')),
-                  ('en', l('english')),
-                  ('gez', l('geez')),
-                ])
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: ChoiceChip(
-                      label: Text(label),
-                      selected: _lang == k,
-                      onSelected: (_) => setState(() => _lang = k),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 100),
+          children: [
+            SizedBox(
+              height: 52,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                children: [
+                  for (final (k, label) in [
+                    ('all', l('all')),
+                    ('am', l('amharic')),
+                    ('en', l('english')),
+                    ('gez', l('geez')),
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: ChoiceChip(
+                        label: Text(label),
+                        selected: _lang == k,
+                        onSelected: (_) => setState(() => _lang = k),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            SectionHeader(l('installed')),
+            for (final t in installed)
+              ListTile(
+                leading: _LangBadge(t.lang),
+                title: Text(t.name),
+                subtitle: Text(
+                  [
+                    t.abbr,
+                    if (t.scope == TranslationScope.newTestament) 'NT',
+                    if (t.scope == TranslationScope.partial) '•',
+                    t.license,
+                  ].join(' · '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: t.bundled
+                    ? (s.primary == t.id
+                          ? Icon(Icons.check_circle, color: cs.primary)
+                          : null)
+                    : IconButton(
+                        tooltip: l('remove'),
+                        icon: const Icon(Icons.delete_outline),
+                        onPressed: () {
+                          if (s.primary == t.id) s.primary = 'AM1954';
+                          if (s.parallel == t.id) s.parallel = null;
+                          repo.remove(t.id);
+                        },
+                      ),
+                onTap: () {
+                  s.primary = t.id;
+                  showSnack(context, t.name);
+                },
+              ),
+            SectionHeader(l('available')),
+            for (final t in available)
+              ListTile(
+                leading: _LangBadge(t.lang),
+                title: Text(t.name),
+                subtitle: Text(
+                  [
+                    if (t.description.isNotEmpty) t.description,
+                    if (t.scope == TranslationScope.newTestament)
+                      l('newTestament'),
+                    t.license,
+                  ].join(' · '),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: switch (repo.downloadState[t.id]) {
+                  DownloadState.downloading => SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(
+                      value: repo.downloadProgress[t.id],
+                      strokeWidth: 3,
                     ),
                   ),
-              ],
-            ),
-          ),
-          SectionHeader(l('installed')),
-          for (final t in installed)
-            ListTile(
-              leading: _LangBadge(t.lang),
-              title: Text(t.name),
-              subtitle: Text(
-                [
-                  t.abbr,
-                  if (t.scope == TranslationScope.newTestament) 'NT',
-                  if (t.scope == TranslationScope.partial) '•',
-                  t.license,
-                ].join(' · '),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: t.bundled
-                  ? (s.primary == t.id
-                        ? Icon(Icons.check_circle, color: cs.primary)
-                        : null)
-                  : IconButton(
-                      tooltip: l('remove'),
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: () {
-                        if (s.primary == t.id) s.primary = 'AM1954';
-                        if (s.parallel == t.id) s.parallel = null;
-                        repo.remove(t.id);
-                      },
-                    ),
-              onTap: () {
-                s.primary = t.id;
-                showSnack(context, '${t.abbr} ✓');
-              },
-            ),
-          SectionHeader(l('available')),
-          for (final t in available)
-            ListTile(
-              leading: _LangBadge(t.lang),
-              title: Text(t.name),
-              subtitle: Text(
-                [
-                  if (t.description.isNotEmpty) t.description,
-                  if (t.scope == TranslationScope.newTestament)
-                    l('newTestament'),
-                  t.license,
-                ].join(' · '),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              trailing: switch (repo.downloadState[t.id]) {
-                DownloadState.downloading => SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(
-                    value: repo.downloadProgress[t.id],
-                    strokeWidth: 3,
+                  DownloadState.failed => IconButton(
+                    icon: Icon(Icons.error_outline, color: cs.error),
+                    onPressed: () => repo.download(t),
                   ),
-                ),
-                DownloadState.failed => IconButton(
-                  icon: Icon(Icons.error_outline, color: cs.error),
-                  onPressed: () => repo.download(t),
-                ),
-                _ => IconButton.filledTonal(
-                  tooltip: l('download'),
-                  icon: const Icon(Icons.download),
-                  onPressed: () => repo.download(t),
-                ),
-              },
+                  _ => IconButton.filledTonal(
+                    tooltip: l('download'),
+                    icon: const Icon(Icons.download),
+                    onPressed: () => repo.download(t),
+                  ),
+                },
+              ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                l('licenseNote'),
+                style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
+              ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Text(
-              l('licenseNote'),
-              style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12.5),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

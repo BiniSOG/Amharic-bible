@@ -1,3 +1,5 @@
+import 'package:material_ui/material_ui.dart';
+
 import '../core/books.dart';
 import '../core/reference.dart';
 
@@ -9,7 +11,7 @@ class ReadingPlan {
     required this.titleAm,
     required this.descEn,
     required this.descAm,
-    required this.emoji,
+    required this.icon,
     required this.color,
     required this.days,
     this.category = PlanCategory.wholeBible,
@@ -20,7 +22,7 @@ class ReadingPlan {
   final String titleAm;
   final String descEn;
   final String descAm;
-  final String emoji;
+  final IconData icon;
   final int color;
   final List<List<Passage>> days;
   final PlanCategory category;
@@ -102,7 +104,7 @@ List<ReadingPlan> _buildPlans() {
       descAm:
           'በ365 ቀናት መጽሐፍ ቅዱስን በሙሉ ያንብቡ፤ በየቀኑ ከብሉይ ኪዳን፣ ከመዝሙር ወይም ከምሳሌ፣ '
           'እና ከሐዲስ ኪዳን።',
-      emoji: '📖',
+      icon: Icons.auto_stories_rounded,
       color: 0xFF0E5A47,
       days: balanced,
     ),
@@ -114,7 +116,7 @@ List<ReadingPlan> _buildPlans() {
           'Read straight through the Bible in one year, about 3–4 '
           'chapters a day.',
       descAm: 'በአንድ ዓመት ውስጥ መጽሐፍ ቅዱስን ከመጀመሪያ እስከ መጨረሻ፤ በቀን 3–4 ምዕራፎች።',
-      emoji: '🗓️',
+      icon: Icons.calendar_month_rounded,
       color: 0xFF5D4037,
       days: _spread(_chaptersOf(_range(1, 66)), 365),
     ),
@@ -124,7 +126,7 @@ List<ReadingPlan> _buildPlans() {
       titleAm: 'ሐዲስ ኪዳንን በ90 ቀናት',
       descEn: 'Read all 260 chapters of the New Testament in three months.',
       descAm: 'የሐዲስ ኪዳንን 260 ምዕራፎች በሦስት ወር ያንብቡ።',
-      emoji: '✝️',
+      icon: Icons.church_rounded,
       color: 0xFF1565C0,
       category: PlanCategory.newTestament,
       days: _spread(nt, 90),
@@ -135,7 +137,7 @@ List<ReadingPlan> _buildPlans() {
       titleAm: 'አራቱ ወንጌላት በ30 ቀናት',
       descEn: 'Walk with Jesus through Matthew, Mark, Luke and John.',
       descAm: 'በማቴዎስ፣ በማርቆስ፣ በሉቃስና በዮሐንስ ወንጌል ከኢየሱስ ጋር ይጓዙ።',
-      emoji: '🕊️',
+      icon: Icons.menu_book_rounded,
       color: 0xFF6A1B9A,
       category: PlanCategory.newTestament,
       days: _spread(_chaptersOf(_range(40, 43)), 30),
@@ -146,7 +148,7 @@ List<ReadingPlan> _buildPlans() {
       titleAm: 'መዝሙረ ዳዊትና ምሳሌ በ60 ቀናት',
       descEn: 'Prayer, praise and wisdom for everyday life.',
       descAm: 'ለዕለት ተዕለት ሕይወት ጸሎት፣ ምስጋናና ጥበብ።',
-      emoji: '🎵',
+      icon: Icons.music_note_rounded,
       color: 0xFFC9962B,
       category: PlanCategory.wisdom,
       days: [
@@ -163,7 +165,7 @@ List<ReadingPlan> _buildPlans() {
       titleAm: 'ምሳሌን በአንድ ወር',
       descEn: 'One chapter of wisdom for each day of the month.',
       descAm: 'ለወሩ እያንዳንዱ ቀን አንድ የጥበብ ምዕራፍ።',
-      emoji: '💡',
+      icon: Icons.lightbulb_outline_rounded,
       color: 0xFFEF6C00,
       category: PlanCategory.wisdom,
       days: [
@@ -180,7 +182,7 @@ List<ReadingPlan> _buildPlans() {
       descAm:
           'ለአዲስ አማኞች የ21 ቀን መሠረት፦ ኢየሱስ ማን ነው፣ ድኅነት፣ ጸሎት፣ መንፈስ ቅዱስና '
           'ቤተ ክርስቲያን።',
-      emoji: '🌱',
+      icon: Icons.spa_rounded,
       color: 0xFF2E7D32,
       category: PlanCategory.topical,
       days: [
@@ -216,7 +218,7 @@ List<ReadingPlan> _buildPlans() {
       titleAm: 'በጭንቀት ጊዜ ሰላም',
       descEn: 'Seven days of God\'s promises for worried hearts.',
       descAm: 'ለተጨነቀ ልብ የሰባት ቀን የእግዚአብሔር ተስፋዎች።',
-      emoji: '🌤️',
+      icon: Icons.wb_sunny_outlined,
       color: 0xFF00838F,
       category: PlanCategory.topical,
       days: [
@@ -239,7 +241,7 @@ List<ReadingPlan> _buildPlans() {
       descAm:
           'እግዚአብሔር ምን ያህል እንደሚወደንና እኛም ሌሎችን እንዴት መውደድ እንደምንችል የሚያሳይ '
           'የአሥር ቀን ጥናት።',
-      emoji: '❤️',
+      icon: Icons.favorite_rounded,
       color: 0xFFC62828,
       category: PlanCategory.topical,
       days: [
@@ -261,7 +263,7 @@ List<ReadingPlan> _buildPlans() {
       titleAm: 'መጸለይን መማር',
       descEn: 'Learn from Jesus and the great prayers of the Bible.',
       descAm: 'ከኢየሱስና በመጽሐፍ ቅዱስ ካሉ ታላላቅ ጸሎቶች ይማሩ።',
-      emoji: '🙏',
+      icon: Icons.volunteer_activism_rounded,
       color: 0xFF4527A0,
       category: PlanCategory.topical,
       days: [
@@ -285,7 +287,7 @@ List<ReadingPlan> _buildPlans() {
           'Fourteen days through the last week of Jesus — ideal for '
           'Hudade / Lent and Easter (Fasika).',
       descAm: 'በኢየሱስ የመጨረሻ ሳምንት የ14 ቀን ጉዞ — ለሁዳዴ ጾምና ለፋሲካ ተስማሚ።',
-      emoji: '🌿',
+      icon: Icons.park_rounded,
       color: 0xFF6D4C41,
       category: PlanCategory.topical,
       days: [
