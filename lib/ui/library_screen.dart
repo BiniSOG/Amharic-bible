@@ -54,9 +54,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 children: [
                   for (final (k, label) in [
                     ('all', l('all')),
-                    ('am', l('amharic')),
-                    ('en', l('english')),
-                    ('gez', l('geez')),
+                    for (final code in kBibleLangOrder)
+                      if ([
+                        ...repo.installed,
+                        ...repo.downloadable,
+                      ].any((t) => t.lang == code))
+                        (code, bibleLangName(code)),
                   ])
                     Padding(
                       padding: const EdgeInsets.only(right: 6),
@@ -218,7 +221,9 @@ class _LangBadge extends StatelessWidget {
     final (label, color) = switch (lang) {
       'am' => ('አማ', cs.primary),
       'gez' => ('ግዕ', cs.tertiary),
-      _ => ('EN', cs.secondary),
+      'ti' => ('ትግ', cs.primary),
+      'sgw' => ('ጉራ', cs.primary),
+      _ => (lang.toUpperCase(), cs.secondary),
     };
     return CircleAvatar(
       backgroundColor: color.withValues(alpha: 0.15),

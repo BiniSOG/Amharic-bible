@@ -7,6 +7,7 @@ import 'more_screen.dart';
 import 'plans/plans_screen.dart';
 import 'reader/reader_screen.dart';
 import 'today_screen.dart';
+import 'update_prompt.dart';
 import 'widgets/common.dart';
 
 class HomeShell extends StatelessWidget {
@@ -30,6 +31,14 @@ class _Shell extends StatefulWidget {
 
 class _ShellState extends State<_Shell> {
   final _built = <int>{0};
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) checkForUpdates(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

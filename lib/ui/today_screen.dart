@@ -14,6 +14,7 @@ import '../state/settings_controller.dart';
 import '../state/user_data_controller.dart';
 import 'dictionary_screen.dart';
 import 'kids/kids_screen.dart';
+import 'language_picker.dart';
 import 'library_screen.dart';
 import 'my_library_screen.dart';
 import 'plans/plan_detail_screen.dart';
@@ -117,6 +118,10 @@ class TodayScreen extends StatelessWidget {
           SliverAppBar.large(
             title: Text(greet),
             actions: [
+              const Padding(
+                padding: EdgeInsets.only(right: 4),
+                child: LanguageButton(),
+              ),
               if (user.streak > 0)
                 Padding(
                   padding: const EdgeInsets.only(right: 4),
@@ -262,110 +267,117 @@ class _VerseOfDayCard extends StatelessWidget {
     final kjv = bible.lang != 'en' ? repo.cached('KJV') : null;
     if (bible.lang != 'en' && kjv == null) repo.load('KJV');
     final label = '${ref.label(amharic: bible.isEthiopic)} · ${bible.abbr}';
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0E5A47), Color(0xFF14785F), Color(0xFF0A3D30)],
-        ),
-      ),
-      child: Material(
-        type: MaterialType.transparency,
-        child: InkWell(
+    return Directionality(
+      textDirection: bible.lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+      child: Container(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          onTap: () => context.read<AppNav>().openInBible(ref),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(22, 20, 14, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.auto_awesome, color: Brand.gold, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      l('verseOfDay'),
-                      style: const TextStyle(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0E5A47), Color(0xFF14785F), Color(0xFF0A3D30)],
+          ),
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(28),
+            onTap: () => context.read<AppNav>().openInBible(ref),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(22, 20, 14, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome,
                         color: Brand.gold,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        l('verseOfDay'),
+                        style: const TextStyle(
+                          color: Brand.gold,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Text(
+                    text,
+                    style: TextStyle(
+                      fontFamily: scriptureFont(bible.lang),
+                      fontSize: 20,
+                      height: 1.5,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (kjv != null) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      kjv.verse(ref.book, ref.chapter, ref.verse),
+                      style: const TextStyle(
+                        fontFamily: kSerifLatin,
+                        fontSize: 14.5,
+                        height: 1.45,
+                        color: Colors.white70,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  text,
-                  style: TextStyle(
-                    fontFamily: scriptureFont(bible.lang),
-                    fontSize: 20,
-                    height: 1.5,
-                    color: Colors.white,
-                  ),
-                ),
-                if (kjv != null) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    kjv.verse(ref.book, ref.chapter, ref.verse),
-                    style: const TextStyle(
-                      fontFamily: kSerifLatin,
-                      fontSize: 14.5,
-                      height: 1.45,
-                      color: Colors.white70,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: l('copy'),
-                      color: Colors.white,
-                      icon: const Icon(Icons.copy_rounded),
-                      onPressed: () {
-                        Clipboard.setData(
-                          ClipboardData(text: '“$text”\n— $label'),
-                        );
-                        showSnack(context, l('copied'));
-                      },
-                    ),
-                    IconButton(
-                      tooltip: l('image'),
-                      color: Colors.white,
-                      icon: const Icon(Icons.image_outlined),
-                      onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => VerseImageScreen(
-                            text: text,
-                            reference: label,
-                            lang: bible.lang,
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      tooltip: l('share'),
-                      color: Colors.white,
-                      icon: const Icon(Icons.ios_share_rounded),
-                      onPressed: () => SharePlus.instance.share(
-                        ShareParams(text: '“$text”\n— $label'),
+                      IconButton(
+                        tooltip: l('copy'),
+                        color: Colors.white,
+                        icon: const Icon(Icons.copy_rounded),
+                        onPressed: () {
+                          Clipboard.setData(
+                            ClipboardData(text: '“$text”\n— $label'),
+                          );
+                          showSnack(context, l('copied'));
+                        },
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      IconButton(
+                        tooltip: l('image'),
+                        color: Colors.white,
+                        icon: const Icon(Icons.image_outlined),
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => VerseImageScreen(
+                              text: text,
+                              reference: label,
+                              lang: bible.lang,
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: l('share'),
+                        color: Colors.white,
+                        icon: const Icon(Icons.ios_share_rounded),
+                        onPressed: () => SharePlus.instance.share(
+                          ShareParams(text: '“$text”\n— $label'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

@@ -1,6 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/l10n.dart';
 import '../core/reference.dart';
 import '../core/theme.dart';
 
@@ -13,7 +14,9 @@ class SettingsController extends ChangeNotifier {
         )];
     _fontScale = _p.getDouble('fontScale') ?? 1.0;
     _lineHeight = _p.getDouble('lineHeight') ?? 1.7;
-    _uiAmharic = _p.getBool('uiAmharic') ?? true;
+    _uiLang =
+        _p.getString('uiLang') ??
+        ((_p.getBool('uiAmharic') ?? true) ? 'am' : 'en');
     _primary = _p.getString('primary') ?? 'AM1954';
     _parallel = _p.getString('parallel');
     _showVerseNumbers = _p.getBool('verseNumbers') ?? true;
@@ -21,6 +24,7 @@ class SettingsController extends ChangeNotifier {
     _ethiopicNumerals = _p.getBool('ethiopicNumerals') ?? false;
     _commentarySource = _p.getString('commentarySource') ?? 'mhc';
     _sideBySide = _p.getBool('sideBySide') ?? false;
+    _showXrefMarkers = _p.getBool('xrefMarkers') ?? true;
     final last = _p.getString('lastRef');
     _last =
         (last != null ? VerseRef.tryParseKey(last) : null) ??
@@ -32,7 +36,7 @@ class SettingsController extends ChangeNotifier {
   late ReaderTheme _theme;
   late double _fontScale;
   late double _lineHeight;
-  late bool _uiAmharic;
+  late String _uiLang;
   late String _primary;
   String? _parallel;
   late bool _showVerseNumbers;
@@ -40,12 +44,23 @@ class SettingsController extends ChangeNotifier {
   late bool _ethiopicNumerals;
   late String _commentarySource;
   late bool _sideBySide;
+  late bool _showXrefMarkers;
   late VerseRef _last;
 
   ReaderTheme get theme => _theme;
   double get fontScale => _fontScale;
   double get lineHeight => _lineHeight;
-  bool get uiAmharic => _uiAmharic;
+
+  /// Interface language code (see kAppLanguages).
+  String get uiLang => _uiLang;
+  set uiLang(String v) {
+    _uiLang = v;
+    _p.setString('uiLang', v);
+    notifyListeners();
+  }
+
+  /// Ethiopic-script interface (Amharic content and book names).
+  bool get uiAmharic => appLanguage(_uiLang).ethiopic;
   String get primary => _primary;
   String? get parallel => _parallel;
   bool get showVerseNumbers => _showVerseNumbers;
@@ -55,6 +70,15 @@ class SettingsController extends ChangeNotifier {
 
   /// Parallel layout: false = stacked (line by line), true = two columns.
   bool get sideBySide => _sideBySide;
+
+  /// Show a tappable `*` after verses that have cross references.
+  bool get showXrefMarkers => _showXrefMarkers;
+  set showXrefMarkers(bool v) {
+    _showXrefMarkers = v;
+    _p.setBool('xrefMarkers', v);
+    notifyListeners();
+  }
+
   set sideBySide(bool v) {
     _sideBySide = v;
     _p.setBool('sideBySide', v);
@@ -87,11 +111,7 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  set uiAmharic(bool v) {
-    _uiAmharic = v;
-    _p.setBool('uiAmharic', v);
-    notifyListeners();
-  }
+  set uiAmharic(bool v) => uiLang = v ? 'am' : 'en';
 
   set primary(String id) {
     _primary = id;

@@ -2,20 +2,73 @@ import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 import '../state/settings_controller.dart';
+import 'i18n/translations.dart';
 
-/// Lightweight bilingual (Amharic / English) UI strings.
+/// A language the app's interface can be shown in.
+class AppLanguage {
+  const AppLanguage(
+    this.code,
+    this.nativeName,
+    this.englishName, {
+    this.ethiopic = false,
+    this.rtl = false,
+    this.complete = true,
+  });
+
+  final String code;
+  final String nativeName;
+  final String englishName;
+
+  /// Uses Ethiopic script: book names, stories and plans are shown in Amharic.
+  final bool ethiopic;
+  final bool rtl;
+
+  /// False when only part of the interface is translated yet (the rest falls
+  /// back to Amharic or English).
+  final bool complete;
+}
+
+const List<AppLanguage> kAppLanguages = [
+  AppLanguage('am', 'አማርኛ', 'Amharic', ethiopic: true),
+  AppLanguage('en', 'English', 'English'),
+  AppLanguage('om', 'Afaan Oromoo', 'Oromo'),
+  AppLanguage('ti', 'ትግርኛ', 'Tigrinya', ethiopic: true),
+  AppLanguage('sgw', 'ጉራጊኛ', 'Gurage', ethiopic: true, complete: false),
+  AppLanguage('aa', 'Qafaraf', 'Afar', complete: false),
+  AppLanguage('so', 'Soomaali', 'Somali'),
+  AppLanguage('ar', 'العربية', 'Arabic', rtl: true),
+  AppLanguage('fr', 'Français', 'French'),
+  AppLanguage('it', 'Italiano', 'Italian'),
+  AppLanguage('zh', '中文', 'Chinese'),
+];
+
+AppLanguage appLanguage(String code) => kAppLanguages.firstWhere(
+  (l) => l.code == code,
+  orElse: () => kAppLanguages.first,
+);
+
+/// Interface strings. English and Amharic are complete; other languages
+/// override them and fall back to Amharic (Ethiopic-script languages) or
+/// English for anything not yet translated.
 class L {
-  const L(this.amharic);
-  final bool amharic;
+  const L(this.lang);
+  final String lang;
+
+  /// True for Ethiopic-script interfaces (Amharic, Tigrinya, Gurage): book
+  /// names and Amharic content (stories, plans, glossary) are used.
+  bool get amharic => appLanguage(lang).ethiopic;
+  bool get rtl => appLanguage(lang).rtl;
 
   static L of(BuildContext context) =>
-      L(context.select<SettingsController, bool>((s) => s.uiAmharic));
+      L(context.select<SettingsController, String>((s) => s.uiLang));
 
   /// Non-listening variant for callbacks.
   static L read(BuildContext context) =>
-      L(context.read<SettingsController>().uiAmharic);
+      L(context.read<SettingsController>().uiLang);
 
   String t(String key) {
+    final v = kTranslations[lang]?[key];
+    if (v != null) return v;
     final e = _strings[key];
     if (e == null) return key;
     return amharic ? e.$2 : e.$1;
@@ -25,7 +78,6 @@ class L {
 }
 
 const Map<String, (String, String)> _strings = {
-  'appName': ('Amharic Bible', 'መጽሐፍ ቅዱስ'),
   'today': ('Today', 'ዛሬ'),
   'bible': ('Bible', 'መጽሐፍ ቅዱስ'),
   'plans': ('Plans', 'የንባብ እቅድ'),
@@ -41,26 +93,22 @@ const Map<String, (String, String)> _strings = {
     'Search words or a reference (John 3:16)',
     'ቃል ወይም ጥቅስ ይፈልጉ (ዮሐ 3:16)',
   ),
-  'searchIn': ('Search in', 'ፈልግ በ'),
   'all': ('All', 'ሁሉም'),
   'oldTestament': ('Old Testament', 'ብሉይ ኪዳን'),
   'newTestament': ('New Testament', 'ሐዲስ ኪዳን'),
   'results': ('results', 'ውጤቶች'),
   'noResults': ('No results', 'ምንም አልተገኘም'),
   'books': ('Books', 'መጻሕፍት'),
-  'chapter': ('Chapter', 'ምዕራፍ'),
   'chapters': ('Chapters', 'ምዕራፎች'),
   'verse': ('Verse', 'ቁጥር'),
   'copy': ('Copy', 'ቅዳ'),
   'copied': ('Copied to clipboard', 'ተቀድቷል'),
   'share': ('Share', 'አጋራ'),
   'highlight': ('Highlight', 'አድምቅ'),
-  'removeHighlight': ('Remove', 'አስወግድ'),
   'bookmark': ('Bookmark', 'ምልክት'),
   'bookmarked': ('Bookmarked', 'ምልክት ተደርጓል'),
   'note': ('Note', 'ማስታወሻ'),
   'notes': ('Notes', 'ማስታወሻዎች'),
-  'addNote': ('Add a note', 'ማስታወሻ ያክሉ'),
   'notePlaceholder': (
     'Write your thoughts, prayer or insight…',
     'ሀሳብዎን፣ ጸሎትዎን ወይም ማስተዋልዎን ይጻፉ…',
@@ -77,7 +125,6 @@ const Map<String, (String, String)> _strings = {
   'dictionary': ('Dictionary', 'መዝገበ ቃላት'),
   'bibleDictionary': ('Bible Dictionary', 'የመጽሐፍ ቅዱስ መዝገበ ቃላት'),
   'dictionaryHint': ('Look up a word…', 'ቃል ይፈልጉ…'),
-  'selected': ('selected', 'ተመርጧል'),
   'clear': ('Clear', 'አጽዳ'),
   'parallel': ('Parallel', 'ጎን ለጎን'),
   'parallelOff': ('Single version', 'አንድ ትርጉም'),
@@ -96,7 +143,6 @@ const Map<String, (String, String)> _strings = {
   'mixed': ('Mixed', 'የተቀላቀለ'),
   'questions': ('questions', 'ጥያቄዎች'),
   'bestScore': ('Best', 'ከፍተኛ'),
-  'startQuiz': ('Start', 'ጀምር'),
   'quickRound': ('10 questions', '10 ጥያቄዎች'),
   'fullRound': ('All questions', 'ሁሉም ጥያቄዎች'),
   'question': ('Question', 'ጥያቄ'),
@@ -125,7 +171,6 @@ const Map<String, (String, String)> _strings = {
   'installed': ('On this device', 'በዚህ ስልክ ላይ'),
   'available': ('Available to download', 'ለማውረድ ዝግጁ'),
   'download': ('Download', 'አውርድ'),
-  'downloading': ('Downloading…', 'በማውረድ ላይ…'),
   'remove': ('Remove', 'አስወግድ'),
   'amharic': ('Amharic', 'አማርኛ'),
   'english': ('English', 'እንግሊዝኛ'),
@@ -137,7 +182,6 @@ const Map<String, (String, String)> _strings = {
   'history': ('History', 'ታሪክ'),
   'nothingYet': ('Nothing here yet', 'እስካሁን ምንም የለም'),
   'settings': ('Settings', 'ማስተካከያ'),
-  'appearance': ('Appearance', 'ገጽታ'),
   'theme': ('Theme', 'ገጽታ'),
   'light': ('Light', 'ብሩህ'),
   'sepia': ('Sepia', 'ሴፒያ'),
@@ -146,11 +190,9 @@ const Map<String, (String, String)> _strings = {
   'fontSize': ('Text size', 'የፊደል መጠን'),
   'lineHeight': ('Line spacing', 'የመስመር ክፍተት'),
   'uiLanguage': ('App language', 'የመተግበሪያ ቋንቋ'),
-  'readerOptions': ('Reading', 'ንባብ'),
   'verseNumbers': ('Show verse numbers', 'የቁጥር ምልክቶችን አሳይ'),
   'redLetters': ('Paragraph mode', 'በአንቀጽ አሳይ'),
   'ethiopicNumerals': ('Ethiopic numerals', 'የግዕዝ ቁጥሮች'),
-  'keepScreenOn': ('Keep screen on', 'ማያ ገጹ እንዲበራ'),
   'about': ('About & licenses', 'ስለ መተግበሪያው'),
   'readingPlans': ('Reading Plans', 'የንባብ እቅዶች'),
   'myPlans': ('My plans', 'የእኔ እቅዶች'),
@@ -172,7 +214,6 @@ const Map<String, (String, String)> _strings = {
     'Learn God\'s Word through stories',
     'የእግዚአብሔርን ቃል በታሪክ ይማሩ',
   ),
-  'story': ('Story', 'ታሪክ'),
   'lesson': ('What we learn', 'የምንማረው'),
   'memoryVerse': ('Memory verse', 'የሚጠና ጥቅስ'),
   'quiz': ('Quiz time!', 'የጥያቄ ጊዜ!'),
@@ -187,7 +228,6 @@ const Map<String, (String, String)> _strings = {
     'ማብራሪያው ለመጀመሪያ ጊዜ ኢንተርኔት ይፈልጋል። ከዚያ በኋላ ያለ ኢንተርኔት ይሰራል።',
   ),
   'retry': ('Retry', 'እንደገና ሞክር'),
-  'source': ('Source', 'ምንጭ'),
   'fullChapter': ('Full chapter commentary', 'የምዕራፉ ሙሉ ማብራሪያ'),
   'onThisVerse': ('On this verse', 'በዚህ ቁጥር ላይ'),
   'noCommentary': (
@@ -199,7 +239,6 @@ const Map<String, (String, String)> _strings = {
     'ለዚህ ቁጥር ተዛማጅ ጥቅስ የለም።',
   ),
   'myNote': ('My note', 'የእኔ ማስታወሻ'),
-  'openInReader': ('Open', 'ክፈት'),
   'notInVersion': (
     'This passage is not available in this version.',
     'ይህ ክፍል በዚህ ትርጉም ውስጥ የለም።',
@@ -224,18 +263,10 @@ const Map<String, (String, String)> _strings = {
         'link once you have permission to use them.',
     'በነጻ ፈቃድ የተሰጡ ትርጉሞች ብቻ ተካተዋል። የቅጂ መብት ያላቸው ትርጉሞችን ፈቃድ ካገኙ በኋላ በሊንክ ማከል ይችላሉ።',
   ),
-  'stories': ('stories', 'ታሪኮች'),
-  'ageGroup': ('Ages 4–12', 'ከ4–12 ዓመት'),
-  'readyToRead': (
-    'Tap a verse to select it. Long-press for more.',
-    'ቁጥርን ለመምረጥ ይንኩ። ለተጨማሪ አማራጮች ተጭነው ይያዙ።',
-  ),
   'streak': ('day streak', 'ተከታታይ ቀናት'),
   'quickAccess': ('Quick access', 'ፈጣን መዳረሻ'),
   'wordOfGod': ('Read God\'s Word daily', 'የእግዚአብሔርን ቃል በየቀኑ ያንብቡ'),
-  'select': ('Select', 'ምረጥ'),
   'version': ('Version', 'ትርጉም'),
-  'whatIsThis': ('Meaning', 'ትርጉም'),
   'glossary': ('Amharic glossary', 'የአማርኛ መዝገበ ቃላት'),
   'easton': ('Easton\'s Dictionary', 'የኢስተን መዝገበ ቃላት'),
   'relatedVerses': ('Key verses', 'ዋና ጥቅሶች'),
@@ -243,5 +274,31 @@ const Map<String, (String, String)> _strings = {
     'Download failed. Check your connection.',
     'ማውረድ አልተሳካም። ኢንተርኔትዎን ያረጋግጡ።',
   ),
-  'fromWeb': ('Online catalogue', 'የኦንላይን ዝርዝር'),
+  'strongs': ("Strong's", 'ስትሮንግ'),
+  'strongsTitle': ("Strong's Dictionary", 'የስትሮንግ መዝገበ ቃላት'),
+  'strongsHint': (
+    'Tap a number to see the original Hebrew or Greek word',
+    'የመጀመሪያውን የዕብራይስጥ ወይም የግሪክ ቃል ለማየት ቁጥሩን ይንኩ',
+  ),
+  'greek': ('Greek', 'ግሪክ'),
+  'hebrew': ('Hebrew', 'ዕብራይስጥ'),
+  'transliteration': ('Transliteration', 'አጻጻፍ በላቲን'),
+  'pronunciation': ('Pronunciation', 'አነባበብ'),
+  'derivation': ('Derivation', 'ምንጭ'),
+  'definition': ('Definition', 'ትርጉም'),
+  'kjvUsage': ('KJV usage', 'በKJV የተተረጎመበት'),
+  'occursTimes': ('Occurrences in KJV', 'በKJV ውስጥ የተገኘበት ብዛት'),
+  'findAllVerses': ('Find all verses', 'ሁሉንም ጥቅሶች ፈልግ'),
+  'showAll': ('Show all', 'ሁሉንም አሳይ'),
+  'xrefMarkers': ('Cross-reference markers (*)', 'የተዛማጅ ጥቅስ ምልክቶች (*)'),
+  'updateAvailable': ('Update available', 'አዲስ ዝማኔ አለ'),
+  'updateRequired': ('Update required', 'ማዘመን ያስፈልጋል'),
+  'updateRequiredBody': (
+    'This version is no longer supported. Please install the latest version to continue.',
+    'ይህ ስሪት ከአሁን በኋላ አይደገፍም። ለመቀጠል እባክዎ አዲሱን ስሪት ይጫኑ።',
+  ),
+  'updateNow': ('Update now', 'አሁን አዘምን'),
+  'later': ('Later', 'በኋላ'),
+  'language': ('Language', 'ቋንቋ'),
+  'chooseLanguage': ('Choose language', 'ቋንቋ ይምረጡ'),
 };

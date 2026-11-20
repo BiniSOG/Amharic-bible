@@ -8,6 +8,8 @@ import '../core/l10n.dart';
 import '../core/reference.dart';
 import '../core/theme.dart';
 import '../data/bible_repository.dart';
+import '../data/strongs_service.dart';
+import 'strongs_screen.dart';
 import '../state/settings_controller.dart';
 import 'widgets/common.dart';
 
@@ -47,6 +49,16 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
     setState(() => _busy = true);
+    final strongs = StrongsService.normalize(_query);
+    if (strongs != null) {
+      final hits = await context.read<StrongsService>().versesWith(strongs);
+      if (!mounted || q.trim() != _query) return;
+      setState(() {
+        _hits = hits;
+        _busy = false;
+      });
+      return;
+    }
     final hits = await context.read<BibleRepository>().search(
       _version,
       _query,
@@ -151,6 +163,16 @@ class _SearchScreenState extends State<SearchScreen> {
                   context,
                   VerseRef(ref.book, ref.chapter, ref.fromVerse ?? 1),
                 ),
+              ),
+            if (StrongsService.normalize(_ctrl.text) case final n?)
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: cs.tertiaryContainer,
+                  child: Icon(Icons.abc_rounded, color: cs.onTertiaryContainer),
+                ),
+                title: Text("${l('strongs')} $n"),
+                subtitle: Text(l('strongsTitle')),
+                onTap: () => showStrongsSheet(context, n),
               ),
             if (_busy) const LinearProgressIndicator(),
             Expanded(child: _results(l, cs, lang)),

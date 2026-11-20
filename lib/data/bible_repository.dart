@@ -178,7 +178,8 @@ class BibleRepository extends ChangeNotifier {
     return isInstalled(id);
   }
 
-  /// Fetches additional free versions (Amharic, English, Ge'ez) from the
+  /// Fetches additional free versions (Ethiopian languages, English, Arabic,
+  /// French, Italian, Chinese) from the
   /// HelloAO catalogue. Silently ignored when offline.
   Future<void> refreshOnlineCatalog() async {
     try {
@@ -194,8 +195,8 @@ class BibleRepository extends ChangeNotifier {
       final out = <TranslationInfo>[];
       for (final t in (j['translations'] as List? ?? const [])) {
         if (t is! Map) continue;
-        final lang = '${t['language']}';
-        if (!const {'amh', 'eng', 'gez'}.contains(lang)) continue;
+        final code = _helloAoLang['${t['language']}'];
+        if (code == null) continue;
         final id = '${t['id']}';
         final name = '${t['englishName'] ?? t['name'] ?? id}';
         if (known.contains(name.toLowerCase())) continue;
@@ -204,7 +205,7 @@ class BibleRepository extends ChangeNotifier {
             id: 'HAO_$id',
             abbr: '${t['shortName'] ?? id}',
             name: '${t['name'] ?? name}',
-            lang: lang == 'amh' ? 'am' : (lang == 'gez' ? 'gez' : 'en'),
+            lang: code,
             url: helloAoComplete(id),
             description: name,
             license: 'See ${t['licenseUrl'] ?? t['website'] ?? 'helloao.org'}',
@@ -214,7 +215,7 @@ class BibleRepository extends ChangeNotifier {
       out.sort(
         (a, b) => a.lang == b.lang
             ? a.name.compareTo(b.name)
-            : (a.lang == 'am' ? -1 : 1),
+            : langOrder(a.lang).compareTo(langOrder(b.lang)),
       );
       _onlineExtra = out;
       notifyListeners();
@@ -337,4 +338,62 @@ List<BibleBook> booksIn(SearchScope s) => switch (s) {
   SearchScope.gospels =>
     kBooks.where((b) => b.index >= 40 && b.index <= 43).toList(),
   _ => kBooks,
+};
+
+/// ISO 639-3 codes used by the HelloAO catalogue → codes used in this app.
+const Map<String, String> _helloAoLang = {
+  'amh': 'am',
+  'gez': 'gez',
+  'eng': 'en',
+  'orm': 'om',
+  'gaz': 'om',
+  'hae': 'om',
+  'tir': 'ti',
+  'som': 'so',
+  'aar': 'aa',
+  'sgw': 'sgw',
+  'arb': 'ar',
+  'ara': 'ar',
+  'fra': 'fr',
+  'ita': 'it',
+  'cmn': 'zh',
+  'zho': 'zh',
+};
+
+/// Display order of Bible languages.
+const List<String> kBibleLangOrder = [
+  'am',
+  'gez',
+  'en',
+  'om',
+  'ti',
+  'sgw',
+  'aa',
+  'so',
+  'ar',
+  'fr',
+  'it',
+  'zh',
+];
+
+int langOrder(String code) {
+  final i = kBibleLangOrder.indexOf(code);
+  return i < 0 ? 99 : i;
+}
+
+/// Name of a Bible language in its own script.
+String bibleLangName(String code) => switch (code) {
+  'am' => 'አማርኛ',
+  'gez' => 'ግዕዝ',
+  'en' => 'English',
+  'om' => 'Afaan Oromoo',
+  'ti' => 'ትግርኛ',
+  'sgw' => 'ጉራጊኛ',
+  'aa' => 'Qafaraf',
+  'so' => 'Soomaali',
+  'ar' => 'العربية',
+  'fr' => 'Français',
+  'it' => 'Italiano',
+  'zh' => '中文',
+  _ => code,
 };

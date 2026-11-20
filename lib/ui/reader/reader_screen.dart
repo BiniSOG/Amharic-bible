@@ -11,7 +11,10 @@ import '../../data/bible.dart';
 import '../../data/bible_repository.dart';
 import '../../data/tts_service.dart';
 import '../../state/settings_controller.dart';
+import '../../data/study_data.dart';
 import '../../state/user_data_controller.dart';
+import '../strongs_screen.dart';
+import 'inline_cross_refs.dart';
 import '../search_screen.dart';
 import '../widgets/common.dart';
 import 'book_picker.dart';
@@ -440,6 +443,7 @@ class _ChapterViewState extends State<ChapterView> {
   final _keys = <int, GlobalKey>{};
   final _scroll = ScrollController();
   int? _flash;
+  int? _xrefOpen;
   final _recognizers = <GestureRecognizer>[];
 
   @override
@@ -495,6 +499,7 @@ class _ChapterViewState extends State<ChapterView> {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<SettingsController>();
+    final xrefs = context.watch<CrossRefService>();
     final user = context.watch<UserDataController>();
     final l = L.of(context);
     final cs = Theme.of(context).colorScheme;
@@ -607,6 +612,15 @@ class _ChapterViewState extends State<ChapterView> {
             text: t,
             secondaryText: sec == null ? null : t2,
             sideBySide: s.sideBySide,
+            tagged: p.hasStrongs
+                ? p.taggedVerse(widget.book, widget.chapter, v)
+                : null,
+            onXref:
+                s.showXrefMarkers &&
+                    xrefs.countFor(VerseRef(widget.book, widget.chapter, v)) > 0
+                ? () => setState(() => _xrefOpen = _xrefOpen == v ? null : v)
+                : null,
+            xrefOpen: _xrefOpen == v,
             lang: p.lang,
             secondaryLang: sec?.lang,
             fontSize: baseSize,
@@ -626,6 +640,15 @@ class _ChapterViewState extends State<ChapterView> {
             onLongPress: () => widget.onLongPress(v),
           ),
         );
+        if (_xrefOpen == v) {
+          items.add(
+            InlineCrossRefs(
+              ref: VerseRef(widget.book, widget.chapter, v),
+              bible: p,
+              onClose: () => setState(() => _xrefOpen = null),
+            ),
+          );
+        }
       }
     }
 
@@ -655,10 +678,14 @@ class _ChapterViewState extends State<ChapterView> {
     if (widget.footer != null) items.add(widget.footer!);
     items.add(const SizedBox(height: 120));
 
-    return ListView(
-      controller: _scroll,
-      padding: EdgeInsets.zero,
-      children: items,
+    // Scripture keeps its own direction even inside a right-to-left UI.
+    return Directionality(
+      textDirection: p.lang == 'ar' ? TextDirection.rtl : TextDirection.ltr,
+      child: ListView(
+        controller: _scroll,
+        padding: EdgeInsets.zero,
+        children: items,
+      ),
     );
   }
 
@@ -716,6 +743,29 @@ class _ChapterViewState extends State<ChapterView> {
           ),
         ),
       );
+      if (s.showXrefMarkers &&
+          context.read<CrossRefService>().countFor(ref) > 0) {
+        final xr = TapGestureRecognizer()
+          ..onTap = () => showStudySheet(
+            context,
+            bible: widget.primary,
+            book: widget.book,
+            chapter: widget.chapter,
+            verses: [v],
+            initialTab: StudyTab.crossRefs,
+          );
+        _recognizers.add(xr);
+        spans.add(
+          TextSpan(
+            text: '* ',
+            recognizer: xr,
+            style: const TextStyle(
+              color: Brand.red,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        );
+      }
     }
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 8, 22, 8),
@@ -739,6 +789,9 @@ class _VerseTile extends StatelessWidget {
     required this.text,
     required this.secondaryText,
     this.sideBySide = false,
+    this.tagged,
+    this.onXref,
+    this.xrefOpen = false,
     required this.lang,
     required this.secondaryLang,
     required this.fontSize,
@@ -757,6 +810,13 @@ class _VerseTile extends StatelessWidget {
   final String text;
   final String? secondaryText;
   final bool sideBySide;
+
+  /// Strong's-tagged text (KJV with Strong's).
+  final String? tagged;
+
+  /// Set when the verse has cross references: shows a tappable `*`.
+  final VoidCallback? onXref;
+  final bool xrefOpen;
   final String lang;
   final String? secondaryLang;
   final double fontSize;
@@ -783,62 +843,94 @@ class _VerseTile extends StatelessWidget {
         ? cs.tertiaryContainer.withValues(alpha: 0.6)
         : hl;
 
-    final main = Text.rich(
-      TextSpan(
-        children: [
-          if (showNumber)
-            WidgetSpan(
-              alignment: PlaceholderAlignment.top,
+    final numberSpan = WidgetSpan(
+      alignment: PlaceholderAlignment.top,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: fontSize * 0.62,
+            fontWeight: FontWeight.w700,
+            color: cs.primary,
+            height: 1.6,
+          ),
+        ),
+      ),
+    );
+    final trailing = <InlineSpan>[
+      if (onXref != null)
+        WidgetSpan(
+          alignment: PlaceholderAlignment.top,
+          child: Semantics(
+            button: true,
+            label: 'Cross references',
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onXref,
               child: Padding(
-                padding: const EdgeInsets.only(right: 6),
+                padding: const EdgeInsets.fromLTRB(3, 0, 6, 6),
                 child: Text(
-                  label,
+                  '*',
                   style: TextStyle(
-                    fontSize: fontSize * 0.62,
-                    fontWeight: FontWeight.w700,
-                    color: cs.primary,
-                    height: 1.6,
+                    fontSize: fontSize * 0.95,
+                    height: 1,
+                    fontWeight: FontWeight.w900,
+                    color: xrefOpen ? cs.primary : Brand.red,
                   ),
                 ),
               ),
             ),
-          TextSpan(text: text.isEmpty ? '—' : text),
-          if (hasNote || bookmarked)
-            WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 6),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (bookmarked)
-                      Icon(
-                        Icons.bookmark,
-                        size: fontSize * 0.85,
-                        color: Brand.red,
-                      ),
-                    if (hasNote)
-                      Icon(
-                        Icons.sticky_note_2_outlined,
-                        size: fontSize * 0.85,
-                        color: cs.secondary,
-                      ),
-                  ],
-                ),
-              ),
+          ),
+        ),
+      if (hasNote || bookmarked)
+        WidgetSpan(
+          alignment: PlaceholderAlignment.middle,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (bookmarked)
+                  Icon(Icons.bookmark, size: fontSize * 0.85, color: Brand.red),
+                if (hasNote)
+                  Icon(
+                    Icons.sticky_note_2_outlined,
+                    size: fontSize * 0.85,
+                    color: cs.secondary,
+                  ),
+              ],
             ),
-        ],
-      ),
-      style: TextStyle(
-        fontFamily: scriptureFont(lang),
-        fontSize: fontSize,
-        height: lineHeight,
-        color: cs.onSurface,
-        decoration: selected ? TextDecoration.underline : null,
-        decorationStyle: TextDecorationStyle.dotted,
-        decorationColor: cs.primary,
-      ),
+          ),
+        ),
+    ];
+    final textStyle = TextStyle(
+      fontFamily: scriptureFont(lang),
+      fontSize: fontSize,
+      height: lineHeight,
+      color: cs.onSurface,
+      decoration: selected ? TextDecoration.underline : null,
+      decorationStyle: TextDecorationStyle.dotted,
+      decorationColor: cs.primary,
     );
+    final Widget main = tagged != null && tagged!.isNotEmpty
+        ? StrongsVerseText(
+            tagged!,
+            fontSize: fontSize,
+            height: lineHeight,
+            prefix: [if (showNumber) numberSpan],
+            suffix: trailing,
+          )
+        : Text.rich(
+            TextSpan(
+              children: [
+                if (showNumber) numberSpan,
+                TextSpan(text: text.isEmpty ? '—' : text),
+                ...trailing,
+              ],
+            ),
+            style: textStyle,
+          );
 
     return Semantics(
       button: true,

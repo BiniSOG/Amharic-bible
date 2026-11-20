@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/l10n.dart';
 import '../state/settings_controller.dart';
 import 'dictionary_screen.dart';
+import 'language_picker.dart';
 import 'kids/kids_screen.dart';
 import 'library_screen.dart';
 import 'my_library_screen.dart';
@@ -96,14 +97,15 @@ class MoreScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(Icons.language),
                 title: Text(l('uiLanguage')),
-                trailing: SegmentedButton<bool>(
-                  segments: const [
-                    ButtonSegment(value: true, label: Text('አማርኛ')),
-                    ButtonSegment(value: false, label: Text('English')),
-                  ],
-                  selected: {s.uiAmharic},
-                  onSelectionChanged: (v) => s.uiAmharic = v.first,
-                ),
+                subtitle: Text(appLanguage(s.uiLang).nativeName),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => showLanguagePicker(context),
+              ),
+              SwitchListTile(
+                secondary: const Icon(Icons.emergency_outlined),
+                title: Text(l('xrefMarkers')),
+                value: s.showXrefMarkers,
+                onChanged: (v) => s.showXrefMarkers = v,
               ),
               const Padding(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -162,6 +164,18 @@ class AboutScreen extends StatelessWidget {
       (
         'Fonts',
         'Noto Serif Ethiopic, Noto Sans Ethiopic, Noto Serif — SIL Open Font License.',
+      ),
+      (
+        "KJV with Strong's numbers",
+        'Tags via kaiserlik/kjv (KJV text public domain).',
+      ),
+      (
+        "Strong's Hebrew & Greek dictionaries (1890)",
+        'Public domain; JSON by Open Scriptures — CC BY-SA.',
+      ),
+      (
+        'Chinese Union Version, French Darby / Crampon / Synodale',
+        'Public-domain texts via scrollmapper/bible_databases.',
       ),
       (
         'Kids stories, Bible quiz, glossary & plans',

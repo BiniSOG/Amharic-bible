@@ -2,7 +2,12 @@ name: Build Android APK
 
 on:
   push:
+    branches: ['**']
+    tags: ['v*']
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   apk:
@@ -30,3 +35,12 @@ jobs:
           name: amharic-bible-apk
           path: build/app/outputs/flutter-apk/*.apk
           retention-days: 30
+
+      # Pushing a tag such as v1.1.0 publishes a GitHub Release with the APKs.
+      # version.json points users there when an update is available/required.
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/*.apk
+          generate_release_notes: true

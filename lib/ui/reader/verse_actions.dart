@@ -216,6 +216,11 @@ class SelectionBar extends StatelessWidget {
                             () => a.study(StudyTab.crossRefs),
                           ),
                           (
+                            Icons.abc_rounded,
+                            l('strongs'),
+                            () => a.study(StudyTab.strongs),
+                          ),
+                          (
                             Icons.compare_arrows_rounded,
                             l('compare'),
                             () => a.study(StudyTab.compare),
@@ -229,7 +234,7 @@ class SelectionBar extends StatelessWidget {
                           (Icons.image_outlined, l('image'), a.image),
                           (Icons.headphones_outlined, l('listen'), a.listen),
                           (
-                            Icons.translate_rounded,
+                            Icons.local_library_outlined,
                             l('dictionary'),
                             () => a.study(StudyTab.words),
                           ),
@@ -492,6 +497,14 @@ Future<void> showVerseActionsSheet(
           },
         ),
         (
+          Icons.abc_rounded,
+          l('strongs'),
+          () {
+            close();
+            a.study(StudyTab.strongs);
+          },
+        ),
+        (
           Icons.compare_arrows_rounded,
           l('compare'),
           () {
@@ -567,10 +580,10 @@ Future<void> showVerseActionsSheet(
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 5,
+              crossAxisCount: 4,
               mainAxisSpacing: 8,
               crossAxisSpacing: 4,
-              childAspectRatio: 0.82,
+              childAspectRatio: 1.05,
               children: [
                 for (final (icon, label, onTap) in actions)
                   InkWell(

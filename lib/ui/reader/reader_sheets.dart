@@ -14,10 +14,12 @@ import '../../state/settings_controller.dart';
 import '../../state/user_data_controller.dart';
 import '../dictionary_screen.dart';
 import '../library_screen.dart';
+import '../strongs_screen.dart';
+import '../../data/strongs_service.dart';
 import '../widgets/common.dart';
 import 'reader_screen.dart';
 
-enum StudyTab { commentary, crossRefs, compare, words }
+enum StudyTab { commentary, crossRefs, strongs, compare, words }
 
 // ---------------------------------------------------------------------------
 // Version picker
@@ -38,11 +40,8 @@ Future<void> showVersionPicker(BuildContext context, {bool parallel = false}) {
         if (parallel && t.id == s.primary) continue;
         groups.putIfAbsent(t.lang, () => []).add(t);
       }
-      String langName(String c) => c == 'am'
-          ? l('amharic')
-          : c == 'gez'
-          ? l('geez')
-          : l('english');
+      final langs = groups.keys.toList()
+        ..sort((a, b) => langOrder(a).compareTo(langOrder(b)));
       return DraggableScrollableSheet(
         expand: false,
         initialChildSize: 0.6,
@@ -79,12 +78,12 @@ Future<void> showVersionPicker(BuildContext context, {bool parallel = false}) {
                   Navigator.pop(ctx);
                 },
               ),
-            for (final lang in ['am', 'gez', 'en'])
+            for (final lang in langs)
               if (groups[lang] != null) ...[
                 Padding(
                   padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
                   child: Text(
-                    langName(lang),
+                    bibleLangName(lang),
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: Theme.of(ctx).colorScheme.primary,
@@ -439,6 +438,11 @@ class _StudySheetState extends State<StudySheet>
         wholeChapter: widget.wholeChapter,
       ),
       StudyTab.crossRefs => _CrossRefsTab(ref: ref, bible: widget.bible),
+      StudyTab.strongs => _StrongsTab(
+        book: widget.book,
+        chapter: widget.chapter,
+        verses: widget.verses,
+      ),
       StudyTab.compare => _CompareTab(
         book: widget.book,
         chapter: widget.chapter,
@@ -485,6 +489,8 @@ class _StudySheetState extends State<StudySheet>
                     tabs: [
                       Tab(text: l('commentary')),
                       Tab(text: l('crossRefs')),
+
+                      Tab(text: l('strongs')),
                       Tab(text: l('compare')),
                       Tab(text: l('dictionary')),
                     ],
@@ -955,6 +961,93 @@ class _WordsTab extends StatelessWidget {
           ).push(MaterialPageRoute(builder: (_) => const DictionaryScreen())),
         ),
       ],
+    );
+  }
+}
+
+// ----- Strong's -----
+
+class _StrongsTab extends StatelessWidget {
+  const _StrongsTab({
+    required this.book,
+    required this.chapter,
+    required this.verses,
+  });
+  final int book;
+  final int chapter;
+  final List<int> verses;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = L.of(context);
+    final cs = Theme.of(context).colorScheme;
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return FutureBuilder<Bible>(
+      future: context.read<StrongsService>().taggedBible(),
+      builder: (context, snap) {
+        if (!snap.hasData) {
+          return const Padding(
+            padding: EdgeInsets.all(40),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+        final b = snap.data!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.touch_app_outlined, size: 16, color: cs.outline),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    l('strongsHint'),
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: dark ? const Color(0xFF3A3420) : const Color(0xFFFFF4BD),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    "KJV · Strong's",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  for (final v in verses)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: StrongsVerseText(
+                        b.taggedVerse(book, chapter, v),
+                        fontSize: 18,
+                        prefix: [
+                          TextSpan(
+                            text: '$v ',
+                            style: const TextStyle(
+                              color: Brand.red,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -8,14 +8,17 @@ import 'bible_repository.dart' show normalizeForSearch;
 
 /// Treasury of Scripture Knowledge cross references (CC BY 4.0,
 /// CrossReferences.org), keyed in KJV versification.
-class CrossRefService {
+class CrossRefService extends ChangeNotifier {
   Map<String, String>? _map;
   Future<void>? _loading;
 
   Future<void> _ensure() => _loading ??= () async {
     final raw = await rootBundle.loadString('assets/data/crossrefs.json');
     _map = await compute(_decodeMap, raw);
+    notifyListeners();
   }();
+
+  bool get loaded => _map != null;
 
   Future<List<Passage>> forVerse(VerseRef r) async {
     await _ensure();

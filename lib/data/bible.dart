@@ -15,6 +15,7 @@ class Bible {
     required this.name,
     required this.lang,
     required this.books,
+    this.tagged,
   });
 
   final String id;
@@ -22,6 +23,22 @@ class Bible {
   final String name;
   final String lang;
   final List<List<List<String>>> books;
+
+  /// Same shape as [books] but with Strong's tags (`word[G2532]`), for
+  /// tagged versions such as "KJV with Strong's". [books] holds plain text.
+  final List<List<List<String>>>? tagged;
+
+  bool get hasStrongs => tagged != null;
+
+  String taggedVerse(int book, int chapter, int verse) {
+    final t = tagged;
+    if (t == null) return this.verse(book, chapter, verse);
+    if (book < 1 || book > t.length) return '';
+    final b = t[book - 1];
+    if (chapter < 1 || chapter > b.length) return '';
+    final c = b[chapter - 1];
+    return verse < 1 || verse > c.length ? '' : c[verse - 1];
+  }
 
   bool get isEthiopic => lang == 'am' || lang == 'gez';
 
@@ -77,24 +94,46 @@ class Bible {
     'abbr': abbr,
     'name': name,
     'lang': lang,
-    'books': books,
+    'books': tagged ?? books,
   };
 
   /// Fast path for the compact format we bundle/save.
-  static Bible fromCompact(Map<String, dynamic> j) => Bible(
-    id: j['id'] as String,
-    abbr: j['abbr'] as String? ?? j['id'] as String,
-    name: j['name'] as String? ?? j['id'] as String,
-    lang: j['lang'] as String? ?? 'en',
-    books: [
+  static Bible fromCompact(Map<String, dynamic> j) {
+    final raw = [
       for (final b in (j['books'] as List))
         [
           for (final c in (b as List))
             [for (final v in (c as List)) v as String],
         ],
-    ],
-  );
+    ];
+    final isTagged =
+        raw.isNotEmpty &&
+        raw.first.isNotEmpty &&
+        raw.first.first.isNotEmpty &&
+        kStrongsTag.hasMatch(raw.first.first.first);
+    return Bible(
+      id: j['id'] as String,
+      abbr: j['abbr'] as String? ?? j['id'] as String,
+      name: j['name'] as String? ?? j['id'] as String,
+      lang: j['lang'] as String? ?? 'en',
+      books: isTagged
+          ? [
+              for (final b in raw)
+                [
+                  for (final c in b) [for (final v in c) stripStrongs(v)],
+                ],
+            ]
+          : raw,
+      tagged: isTagged ? raw : null,
+    );
+  }
 }
+
+/// Matches a Strong's tag such as `[G2532]` or `[H1254]`.
+final RegExp kStrongsTag = RegExp(r'\[([GH]\d+)\]');
+
+String stripStrongs(String s) =>
+    s.replaceAll(kStrongsTag, '').replaceAll(RegExp(r'\s+'), ' ').trim();
 
 /// Parses Bible JSON in any of the supported shapes:
 ///  * compact  `{books: [[["v1", ...], ...], ...]}` (this app)
@@ -269,7 +308,13 @@ final _tagRe = RegExp(r'<[^>]*>');
 final _wsRe = RegExp(r'\s+');
 final _strongsRe = RegExp(r'\{[^}]*\}');
 
-String _cleanVerse(String s) => s
+final _cjkGap = RegExp(
+  r'(?<=[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef])\s+(?=[\u3000-\u303f\u4e00-\u9fff\uff00-\uffef])',
+);
+
+String _cleanVerse(String s) => _cleanVerseRaw(s).replaceAll(_cjkGap, '');
+
+String _cleanVerseRaw(String s) => s
     .replaceAll(_tagRe, '')
     .replaceAll(_strongsRe, '')
     .replaceAll('¶', '')
