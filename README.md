@@ -70,6 +70,17 @@ The app reads [`version.json`](version.json) from the repository's default branc
 
 To ship a release: bump `version:` in `pubspec.yaml` (e.g. `1.2.0+3`), push a tag `v1.2.0` — the workflow builds the APKs and publishes them as a GitHub Release — then update `version.json` (`latest_build: 3`, and raise `min_build` only when old versions must stop working).
 
+## iOS
+
+Every push also builds an **unsigned iOS app** on a macOS runner (artifact `amharic-bible-ios-unsigned-ipa`). Apple only lets signed apps run on an iPhone, so:
+
+* **Quick testing on your own iPhone:** sign and install the unsigned `.ipa` with a sideloading tool such as AltStore or Sideloadly using your Apple ID (free accounts must re-sign every 7 days).
+* **TestFlight / App Store:** join the Apple Developer Program, create the app with bundle ID `com.binisog.amharicBible`, then either archive in Xcode on a Mac (`flutter build ipa`) or add your signing certificate and provisioning profile to GitHub secrets so CI can produce a signed `.ipa`.
+
+## Google Play (.aab)
+
+Every push also builds `app-release.aab` (artifact `amharic-bible-aab`). Before uploading to Google Play, configure a release signing key (`android/key.properties` + keystore, or Play App Signing with an upload key); the current build uses the debug key.
+
 ## Download the APK
 
 Every push builds an Android APK with GitHub Actions (`.github/workflows/build-apk.yml`).
